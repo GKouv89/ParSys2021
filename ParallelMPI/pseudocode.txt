@@ -13,3 +13,10 @@
   [1][4][7]
   [0][3][6]
 
+ΟΡΙΣΜΟΣ δ
+  deltaX = (xLeft - xRight)/(n/root - 1);
+  deltaY = (yUp - yBottom)/(m/root - 1);
+
+ΠΙΝΑΚΕΣ
+Τοπικά u, u_old είναι (n/root + 2)*(m/root + 2)
+Τοπικός f είναι (n/root)*(m/root)
