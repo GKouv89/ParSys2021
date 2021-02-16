@@ -1,0 +1,15 @@
+ΨΕΥΔΟΚΩΔΙΚΑΣ 
+
+ΧΩΡΙΣΜΟΣ ΔΙΑΣΤΗΜΑΤΩΝ ΛΥΣΗΣ
+  int div = rank/root;
+  int mod = rank%root;
+  xLeft = xLeft + div*(length/root);
+  xRight = xLeft + (div+1)*(length/root)
+  yBottom = yBottom + mod*(length/root);
+  yUp = yBottom + (mod+1)*(length/root);
+  
+  Παράδειγμα σε 3x3 πίνακα (9 διεργασίες)
+  [2][5][8]
+  [1][4][7]
+  [0][3][6]
+
