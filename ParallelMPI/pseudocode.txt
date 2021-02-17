@@ -23,10 +23,18 @@
 
 ΓΕΙΤΟΝΕΣ
 If ((neigh_coord[0] > side_size) || (neigh_coord[1])>side_size){
-  print nyah gib bizounia
   neigh = mpi_proc_null
 }else{
   neigh = mpi_cart_rank(....,neigh_coord)
 }
 Κάθε διεργασία έχει 4 μεταβλητές που κρατάνε τα rank των
 γειτόνων της.
+
+DATATYPES
+MPI_Type_Vector για τις στήλες:
+  Block length: 1
+  Block count: μήκος στήλης του u_old (δλδ τοπικό m+2)
+  Stride: μήκος γραμμής του u_old (δλδ τοπικό n+2)
+MPI_Type_Contiguous για τις γραμμές:
+  Μήκος γραμμής (δλδ τοπικό n+2)
+  Τύπος: Double
