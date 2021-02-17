@@ -20,3 +20,13 @@
 ΠΙΝΑΚΕΣ
 Τοπικά u, u_old είναι (n/root + 2)*(m/root + 2)
 Τοπικός f είναι (n/root)*(m/root)
+
+ΓΕΙΤΟΝΕΣ
+If ((neigh_coord[0] > side_size) || (neigh_coord[1])>side_size){
+  print nyah gib bizounia
+  neigh = mpi_proc_null
+}else{
+  neigh = mpi_cart_rank(....,neigh_coord)
+}
+Κάθε διεργασία έχει 4 μεταβλητές που κρατάνε τα rank των
+γειτόνων της.
