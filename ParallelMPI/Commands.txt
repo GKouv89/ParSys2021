@@ -1,0 +1,1 @@
+mpicc -O3 -g cart_test.c -L/opt/mpiP-3.5/lib -lmpiP -lbfd -lunwind -o cart_test.x -lm

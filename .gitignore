@@ -1,2 +1,5 @@
 Sequential/jacobi_serial.x
 ParallelMPI/cart_test.x
+ParallelMPI/JparallelJacobi.e*
+ParallelMPI/JparallelJacobi.o*
+ParallelMPI/*mpiP

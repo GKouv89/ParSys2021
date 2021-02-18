@@ -5,10 +5,10 @@
 typedef struct {
   int n;
   int m;
-  int mits;
   double alpha;
+  double relax;
   double tol;
-  double relax;  
+  int mits;
 } parameters;
 
 int main(int argc, char* argv[]){
@@ -30,18 +30,24 @@ int main(int argc, char* argv[]){
   /* Creating type to broadcast all parameters to all processes */ 
   int array_of_lengths[6] = {1, 1, 1, 1, 1, 1};
   MPI_Datatype array_of_types[6] = {MPI_INT, MPI_INT, MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE, MPI_INT};
-  MPI_Aint array_of_displacements[6] = {0};
-  MPI_Aint lower_bound, extent_int, extent_double;
+  MPI_Aint array_of_displacements[6];
+  array_of_displacements[0] = offsetof(parameters, n);
+  array_of_displacements[1] = offsetof(parameters, m);
+  array_of_displacements[2] = offsetof(parameters, alpha);
+  array_of_displacements[3] = offsetof(parameters, relax);
+  array_of_displacements[4] = offsetof(parameters, tol);
+  array_of_displacements[5] = offsetof(parameters, mits);
+  /*MPI_Aint lower_bound, extent_int, extent_double;
   MPI_Type_get_extent(MPI_INT, &lower_bound, &extent_int);
   array_of_displacements[1] = extent_int;
   array_of_displacements[2] = 2*extent_int;
   MPI_Type_get_extent(MPI_DOUBLE, &lower_bound, &extent_double);
   array_of_displacements[3] = 2*extent_int + extent_double;
   array_of_displacements[4] = 2*extent_int + 2*extent_double;
-  array_of_displacements[5] = 2*extent_int + 3*extent_double;
-  MPI_Datatype *broadcast_type
-  MPI_Type_create_struct(6, array_of_lengths, array_of_displacements, array_of_types, broadcast_type);
-  MPI_Type_commit(broadcast_type);
+  array_of_displacements[5] = 2*extent_int + 3*extent_double; */
+  MPI_Datatype broadcast_type;
+  MPI_Type_create_struct(6, array_of_lengths, array_of_displacements, array_of_types, &broadcast_type);
+  MPI_Type_commit(&broadcast_type);
   if(my_world_rank == 0){
     scanf("%d,%d", &(param.n), &(param.m));
     scanf("%lf", &(param.alpha));
@@ -59,8 +65,8 @@ int main(int argc, char* argv[]){
   double yUp = 1.0;
   
   if(comm_size != 80){
-    root = sqrt(comm_size);
-    length = xRight - xLeft;
+    double root = sqrt(comm_size);
+    double length = xRight - xLeft;
     double xLeft_local, xRight_local;
     double yBottom_local, yUp_local;
     // if(my_world_rank == 0){

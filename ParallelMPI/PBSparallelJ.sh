@@ -16,4 +16,4 @@
 cd $PBS_O_WORKDIR
 
 # Run executable #
-mpirun -np 25 cart_test.x
+mpirun -np 25 cart_test.x < input
