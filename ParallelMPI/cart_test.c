@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <mpi.h>
 #include <math.h>
 
@@ -37,14 +38,6 @@ int main(int argc, char* argv[]){
   array_of_displacements[3] = offsetof(parameters, relax);
   array_of_displacements[4] = offsetof(parameters, tol);
   array_of_displacements[5] = offsetof(parameters, mits);
-  /*MPI_Aint lower_bound, extent_int, extent_double;
-  MPI_Type_get_extent(MPI_INT, &lower_bound, &extent_int);
-  array_of_displacements[1] = extent_int;
-  array_of_displacements[2] = 2*extent_int;
-  MPI_Type_get_extent(MPI_DOUBLE, &lower_bound, &extent_double);
-  array_of_displacements[3] = 2*extent_int + extent_double;
-  array_of_displacements[4] = 2*extent_int + 2*extent_double;
-  array_of_displacements[5] = 2*extent_int + 3*extent_double; */
   MPI_Datatype broadcast_type;
   MPI_Type_create_struct(6, array_of_lengths, array_of_displacements, array_of_types, &broadcast_type);
   MPI_Type_commit(&broadcast_type);
@@ -59,33 +52,66 @@ int main(int argc, char* argv[]){
   MPI_Type_free(&broadcast_type);
   /************************/
   
+  /* Local parameters calculation */
   double xRight = 1.0;
   double xLeft = -1.0;
   double yBottom = -1.0;
   double yUp = 1.0;
-  
+  double xLeft_local, xRight_local, yBottom_local, yUp_local, coords[2];
+  int n_local, m_local;
+  double deltaX_local, deltaY_local;
+  double *u_local, *u_old_local, *f_local;
+
   if(comm_size != 80){
-    double root = sqrt(comm_size);
-    double length = xRight - xLeft;
-    double xLeft_local, xRight_local;
-    double yBottom_local, yUp_local;
-    // if(my_world_rank == 0){
-      // int i, j, coords[2], curr_rank;
-      // for(i = 0; i < sqrt(comm_size); i++){
-        // for(j = 0; j < sqrt(comm_size); j++){
-          // coords[0] = i;
-          // coords[1] = j;
-          // MPI_Cart_rank(new_comm, coords, &curr_rank);
-          // xLeft_local = xLeft + ((double)coords[0])*(length/root);
-          // xRight_local = xLeft_local + (length/root);          
-          // yUp_local = yUp - ((double)coords[1])*(length/root);
-          // yBottom_local = yUp_local - (length/root);
-          // printf("Process with cart. coords (%d, %d) is %d in the world comm.\n", coords[0], coords[1], curr_rank);
-          // printf("This process will solve in [%.5lf, %.5lf] x [%.5lf, %.5lf].\n", xLeft_local, xRight_local, yBottom_local, yUp_local);
-        // }
-      // }
-    // }
+    double root, length;
+    root = sqrt(param.n);
+    length = xRight - xLeft;
+    MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
+    xLeft_local = xLeft + ((double)coords[0])*(length/root);
+    xRight_local = xLeft_local + (length/root);          
+    yUp_local = yUp - ((double)coords[1])*(length/root);
+    yBottom_local = yUp_local - (length/root);
+    
+    n_local = param.n/root;
+    m_local = param.m/root;
+    
+    deltaX_local = (xLeft_local - xRight_local)/(n_local - 1);
+    deltaY_local = (yUp_local - yBottom_local)/(m_local - 1);
+    
+    char *msg = malloc(512*sizeof(char));
+    if(my_world_rank == 12){
+      sprintf(msg, "Process rank 12 solves in [%.1lf,%.1lf]x[%.1lf,%.1lf] with n_local = %d and m_local = %d\n", xLeft_local, xRight_local, xLeft_local, xRight_local, n_local, m_local);
+      MPI_Send(msg, strlen(msg) + 1, MPI_CHAR, 0, new_comm);
+    }else if(my_world_rank == 0){
+      MPI_Recv(msg, 512, MPI_CHAR, 0, new_comm);
+      printf("%s", msg);
+      free(msg);
+      msg = NULL;
+    }
+
   }
+  u_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
+  u_old_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
+  f = (double*)calloc(n_local*m_local, sizeof(double));
+  
+  if(u_local == NULL || u_old_local == NULL || f == NULL){
+    if(my_world_rank == 0){
+      printf("Not enough memory for 2 %ix%i plus one %ix%i matrices.\n", n_local + 2, m_local + 2, n_local, m_local);
+    }
+    MPI_Finalize();
+    exit(1);
+  }
+  
+  /********************************/
+  
+  /* Cleaning up */
+  free(u_local);
+  u_local = NULL;
+  free(u_old_local);
+  u_old_local = NULL;
+  free(f);
+  f = NULL;
   MPI_Finalize();
+  /***************/
 	return 0;
 }
