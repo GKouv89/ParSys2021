@@ -32,8 +32,8 @@ int main(int argc, char* argv[]){
   double yUp = 1.0;
   
   if(comm_size != 80){
-    root = sqrt(comm_size);
-    length = xRight - xLeft;
+    double root = sqrt(comm_size);
+    double length = xRight - xLeft;
     double xLeft_local, xRight_local;
     double yBottom_local, yUp_local;
     if(my_world_rank == 0){
@@ -43,9 +43,9 @@ int main(int argc, char* argv[]){
           coords[0] = i;
           coords[1] = j;
           MPI_Cart_rank(new_comm, coords, &curr_rank);
-          xLeft_local = xLeft + ((double)coords[0])*(length/root);
+          xLeft_local = xLeft + ((double)coords[1])*(length/root);
           xRight_local = xLeft_local + (length/root);          
-          yUp_local = yUp - ((double)coords[1])*(length/root);
+          yUp_local = yUp - ((double)coords[0])*(length/root);
           yBottom_local = yUp_local - (length/root);
           printf("Process with cart. coords (%d, %d) is %d in the world comm.\n", coords[0], coords[1], curr_rank);
           printf("This process will solve in [%.5lf, %.5lf] x [%.5lf, %.5lf].\n", xLeft_local, xRight_local, yBottom_local, yUp_local);

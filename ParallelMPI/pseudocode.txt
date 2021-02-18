@@ -17,9 +17,9 @@
   1η περίπτωση: Όχι 80 διεργασίες
     root = sqrt(comm_size); // World communicator size or dimension of cartesian grid
     length = xRight - xLeft = 2.0; // Global xRight, xLeft
-    xLeft_local = xLeft + cart_coord[0]*(length/root);
+    xLeft_local = xLeft + cart_coord[1]*(length/root);
     xRight_local = xLeft_local + (length/root);
-    yUp_local = yUp - cart_coord[1]*(length/root);
+    yUp_local = yUp - cart_coord[0]*(length/root);
     yBottom_local = yUp_local - (length/root);
 
 ΟΡΙΣΜΟΣ δ
