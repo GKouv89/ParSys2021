@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
 #include <math.h>
@@ -57,19 +58,19 @@ int main(int argc, char* argv[]){
   double xLeft = -1.0;
   double yBottom = -1.0;
   double yUp = 1.0;
-  double xLeft_local, xRight_local, yBottom_local, yUp_local, coords[2];
-  int n_local, m_local;
+  double xLeft_local, xRight_local, yBottom_local, yUp_local;
+  int n_local, m_local, coords[2];
   double deltaX_local, deltaY_local;
   double *u_local, *u_old_local, *f_local;
 
   if(comm_size != 80){
     double root, length;
-    root = sqrt(param.n);
+    root = sqrt(comm_size);
     length = xRight - xLeft;
     MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
-    xLeft_local = xLeft + ((double)coords[0])*(length/root);
+    xLeft_local = xLeft + ((double)coords[1])*(length/root);
     xRight_local = xLeft_local + (length/root);          
-    yUp_local = yUp - ((double)coords[1])*(length/root);
+    yUp_local = yUp - ((double)coords[0])*(length/root);
     yBottom_local = yUp_local - (length/root);
     
     n_local = param.n/root;
@@ -78,23 +79,23 @@ int main(int argc, char* argv[]){
     deltaX_local = (xLeft_local - xRight_local)/(n_local - 1);
     deltaY_local = (yUp_local - yBottom_local)/(m_local - 1);
     
-    char *msg = malloc(512*sizeof(char));
-    if(my_world_rank == 12){
-      sprintf(msg, "Process rank 12 solves in [%.1lf,%.1lf]x[%.1lf,%.1lf] with n_local = %d and m_local = %d\n", xLeft_local, xRight_local, xLeft_local, xRight_local, n_local, m_local);
-      MPI_Send(msg, strlen(msg) + 1, MPI_CHAR, 0, new_comm);
+/*    char *msg = malloc(512*sizeof(char));
+    if(my_world_rank == 13){
+      sprintf(msg, "Process rank 13 aka (%d, %d) solves in [%.1lf,%.1lf]x[%.1lf,%.1lf] with n_local = %d and m_local = %d\n", coords[0], coords[1], xLeft_local, xRight_local, yBottom_local, yUp_local, n_local, m_local);
+      MPI_Send(msg, strlen(msg) + 1, MPI_CHAR, 0, 0, new_comm);
     }else if(my_world_rank == 0){
-      MPI_Recv(msg, 512, MPI_CHAR, 0, new_comm);
+      MPI_Recv(msg, 512, MPI_CHAR, 13, 0, new_comm, MPI_STATUS_IGNORE);
       printf("%s", msg);
       free(msg);
       msg = NULL;
-    }
+    }*/
 
   }
   u_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
   u_old_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
-  f = (double*)calloc(n_local*m_local, sizeof(double));
+  f_local = (double*)calloc(n_local*m_local, sizeof(double));
   
-  if(u_local == NULL || u_old_local == NULL || f == NULL){
+  if(u_local == NULL || u_old_local == NULL || f_local == NULL){
     if(my_world_rank == 0){
       printf("Not enough memory for 2 %ix%i plus one %ix%i matrices.\n", n_local + 2, m_local + 2, n_local, m_local);
     }
@@ -109,8 +110,8 @@ int main(int argc, char* argv[]){
   u_local = NULL;
   free(u_old_local);
   u_old_local = NULL;
-  free(f);
-  f = NULL;
+  free(f_local);
+  f_local = NULL;
   MPI_Finalize();
   /***************/
 	return 0;
