@@ -129,7 +129,7 @@ int main(int argc, char* argv[]){
   /************************/
   
   /* TEST FOR NEIGHBORS */
-  if(my_world_rank == 0){
+  /*if(my_world_rank == 0){ // FIRST TEST PASSED
     printf("Rank 0 has neighbors:\n");
     if(north != MPI_PROC_NULL){
       printf("ERROR - NORTH ISN'T NULL\n");
@@ -144,9 +144,9 @@ int main(int argc, char* argv[]){
       printf("No east neighbor\n");
     }
     MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: %d\t", neigh_coords[0], neigh_coords[1]);
+    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
   }
-  /* if(my_world_rank == 1){
+  if(my_world_rank == 1){ // SECOND TEST PASSED
     printf("Rank 1 has neighbors:\n");
     if(north != MPI_PROC_NULL){
       printf("ERROR - NORTH ISN'T NULL\n");
@@ -158,10 +158,10 @@ int main(int argc, char* argv[]){
     MPI_Cart_coords(new_comm, east, 2, neigh_coords);
     printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
     MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: %d\t", neigh_coords[0], neigh_coords[1]);
+    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
   }
-  if(my_world_rank == 5){
-    printf("Rank 5 has neighbors:\n");
+  if(my_world_rank == 6){ // THIRD TEST PASSED
+    printf("Rank 6 has neighbors:\n");
     MPI_Cart_coords(new_comm, north, 2, neigh_coords);
     printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
     MPI_Cart_coords(new_comm, south, 2, neigh_coords);
@@ -169,30 +169,30 @@ int main(int argc, char* argv[]){
     MPI_Cart_coords(new_comm, east, 2, neigh_coords);
     printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
     MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: %d\t", neigh_coords[0], neigh_coords[1]);
+    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
   }
-  if(my_world_rank == 23){
+  if(my_world_rank == 23){ // FOURTH TEST PASSED
     printf("Rank 23 has neighbors:\n");
     MPI_Cart_coords(new_comm, north, 2, neigh_coords);
     printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
     if(south != MPI_PROC_NULL){
-      printf("ERROR - SOUTH ISN'T NULL\n");
+      printf("ERROR - SOUTH ISN'T NULL\t");
     }else{
-      printf("No south neighbor\n");
+      printf("No south neighbor\t");
     }
     MPI_Cart_coords(new_comm, east, 2, neigh_coords);
     printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
     MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: %d\t", neigh_coords[0], neigh_coords[1]);
+    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
   }
-  if(my_world_rank == 24){
+  if(my_world_rank == 24){ // FIFTH TEST PASSED
     printf("Rank 24 has neighbors:\n");
     MPI_Cart_coords(new_comm, north, 2, neigh_coords);
     printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
     if(south != MPI_PROC_NULL){
-      printf("ERROR - SOUTH ISN'T NULL\n");
+      printf("ERROR - SOUTH ISN'T NULL\t");
     }else{
-      printf("No south neighbor\n");
+      printf("No south neighbor\t");
     }
     MPI_Cart_coords(new_comm, east, 2, neigh_coords);
     printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]){
     }else{
       printf("No west neighbor\n");
     }
-  }  */
+  }*/
   
   
   /* Cleaning up */
