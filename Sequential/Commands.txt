@@ -1,1 +1,1 @@
-mpicc -O3 jacobi_serial_improved.c -o jacobi_serial.x -lm
+mpicc -O3 jacobi_serial.c -o jacobi_serial.x -lm
