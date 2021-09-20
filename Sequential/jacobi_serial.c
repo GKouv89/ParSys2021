@@ -201,7 +201,11 @@ int main(int argc, char **argv)
     }
     error = sqrt(error)/(n*m);
     iterationCount++;
-
+    // Swap the buffers
+    tmp = u_old;
+    u_old = u;
+    u = tmp;
+    
     /* Iterate as long as it takes to meet the convergence criterion */
     while (iterationCount < maxIterationCount && error > maxAcceptableError)
     {    	
