@@ -3,6 +3,7 @@
 #include <string.h>
 #include <mpi.h>
 #include <math.h>
+#include <time.h>
 
 typedef struct {
   int n;
@@ -70,7 +71,7 @@ int main(int argc, char* argv[]){
   double yUp = 1.0;
   double xLeft_local, xRight_local, yBottom_local, yUp_local;
   int n_local, m_local, coords[2];
-  double *u_local, *u_old_local, *fXsquared, *fYsquared;
+  double *tmp_local, *u_local, *u_old_local, *fXsquared, *fYsquared;
 
   if(comm_size != 80){
     double root, length;
@@ -84,8 +85,8 @@ int main(int argc, char* argv[]){
     n_local = param.n/root;
     m_local = param.m/root;
   }else{
-    n_local = 84; // We have decided we have divided x axis in 10 subspaces
-    m_local = 105; // We have decided to divide y axix in 8 subspaces
+    n_local = 105; // We have decided we have divided x axis in 10 subspaces
+    m_local = 83; // We have decided to divide y axis in 8 subspaces
     MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
     xLeft_local = xLeft + ((double)coords[1])*0.2;
     xRight_local = xLeft_local + 0.2;          
@@ -141,36 +142,171 @@ int main(int argc, char* argv[]){
     MPI_Cart_rank(new_comm, neigh_coords, &east);
   }
   /************************/
+
+  /***** A small test for xLeft_local, xRight_local, yUp_local, yBottom_local *****/
+  // if(my_world_rank == 0){
+  //   printf("xLeft_local: %lf\n", xLeft_local);
+  //   printf("xRight_local: %lf\n", xRight_local);
+  //   printf("yUp_local: %lf\n", yUp_local);
+  //   printf("yBottom_local: %lf\n", yBottom_local);
+  // }
+  /***** A small test for xLeft_local, xRight_local, yUp_local, yBottom_local *****/
+
+  /* Datatypes for array row and column sending and receiving */
+  // We require one data type for sending a row and one for sending a column
+  // First, for the row.
+  // We account for halo elements and 'extract' only the elements that are 
+  // native to the current process' data.
+  // Create the datatype
+  MPI_Datatype row_type;
+  MPI_Type_contiguous(m_local, MPI_DOUBLE, &row_type); // Length of row == number of columns
+  MPI_Type_commit(&row_type);
+  MPI_Datatype column_type;
+  MPI_Type_vector(n_local, 1, m_local+1, MPI_DOUBLE, &column_type); // Count == length of column == number of rows
+                                                                  // Stride == length of row == number of columns
+  MPI_Type_commit(&column_type);
+  /************************************************************/
   
-  /* TEST FOR NEIGHBORS WITH 80 PROCESSES */
-  if(my_world_rank == 45){ // FIRST TEST PASSED
-    printf("Rank 45 has neighbors:\n");
-    if(north == MPI_PROC_NULL){
-      printf("ERROR - NORTH IS NULL\n");
-    }else{
-        MPI_Cart_coords(new_comm, north, 2, neigh_coords);
-        printf("North: Rank %d == (%d, %d)\t", north, neigh_coords[0], neigh_coords[1]);
-    }
-    if(south == MPI_PROC_NULL){
-      printf("ERROR - SOUTH IS NULL\n");
-    }else{
-        MPI_Cart_coords(new_comm, south, 2, neigh_coords);
-        printf("South: Rank %d == (%d, %d)\t", south, neigh_coords[0], neigh_coords[1]);
-    }
-    if(east == MPI_PROC_NULL){
-      printf("ERROR - EAST IS NULL\n");
-    }else{
-        MPI_Cart_coords(new_comm, east, 2, neigh_coords);
-        printf("East: Rank %d == (%d, %d)\t", east, neigh_coords[0], neigh_coords[1]);
-    }
-    if(west == MPI_PROC_NULL){
-      printf("ERROR - WEST IS NULL\n");
-    }else{
-        MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-        printf("West: Rank %d == (%d, %d)\t", west, neigh_coords[0], neigh_coords[1]);
-    }
+  double maxAcceptableError = param.tol;
+  double error = 0.0;
+  int maxIterationCount = param.mits;
+  int iterationCount = 0;
+  
+  #define SRC(XX,YY) u_old_local[(YY)*(n_local+2)+(XX)]
+  #define DST(XX,YY) u_local[(YY)*(n_local+2)+(XX)]
+
+  clock_t start = clock(), diff;
+  double t1, t2;
+  MPI_Barrier(new_comm);
+  t1 = MPI_Wtime();
+
+  // Coefficients
+  double cx = 1.0/(param.deltaX*param.deltaX);
+  double cy = 1.0/(param.deltaY*param.deltaY);
+  double cc = -2.0*cx-2.0*cy-param.alpha;
+
+  int x, y;
+  double fX, fY;
+  double updateVal;
+  double f;
+
+  for (y = 1; y < (m_local+1); y++)
+  {
+      fY = yBottom_local + (y-1)*param.deltaY;
+      fYsquared[y-1] = fY*fY;
+      for (x = 1; x < (n_local+1); x++)
+      {
+          fX = xLeft_local + (x-1)*param.deltaX;
+          fXsquared[x-1] = fX*fX;
+          f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+          updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                          (SRC(x,y-1) + SRC(x,y+1))*cy +
+                          SRC(x,y)*cc - f
+                      )/cc;
+          DST(x,y) = SRC(x,y) - param.relax*updateVal;
+          error += updateVal*updateVal;
+      }
   }
+  error = sqrt(error)/(n_local*m_local); // SOS: DO WE NEED THE LOCAL OR GLOBAL ONES HERE??
+  iterationCount++;
+  // Swap the buffers
+  tmp_local = u_old_local;
+  u_old_local = u_local;
+  u_local = tmp_local;
+  // if(my_world_rank == 0){
+  //   printf("Completed first rep, where fXsquared and fYsquared are calculated.\n");
+  // }
+
+  /* Iterate as long as it takes to meet the convergence criterion */
+  while (iterationCount < maxIterationCount && error > maxAcceptableError)
+  {    	
+    /* COMMUNICATION OF HALO POINTS */
+    MPI_Request reception_requests[4], send_requests[4];
+    // We receive from our north neighbor its southmost row, 
+    // and we store that in our northermost one, so row 0, column 1 is our starting point
+    MPI_Irecv(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &reception_requests[0]); 
+    // We receive from our south neighbor its northermost row, 
+    // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
+    MPI_Irecv(&(SRC(1, n_local + 1)), 1, row_type, south, 0, new_comm, &reception_requests[1]); 
+    
+    // We receive from our east neighbor its westernmost column, 
+    // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
+    MPI_Irecv(&(SRC(m_local + 1, 1)), 1, column_type, east, 0, new_comm, &reception_requests[3]); 
+    
+    // We receive from our west neighbor its easternnmost column, 
+    // and we store that in our westernmost one, so row 1, column 0 is our starting point
+    MPI_Irecv(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &reception_requests[2]); 
+    
+    // if(my_world_rank == 0){
+    //   printf("Done with Irecv commands.\n");
+    // }
+    // We send our second northest row to our north neighbor
+    // so row 1, column 1 is our starting point
+    MPI_Isend(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests[0]);
+    // We send our second southest row to our south neighbor
+    // so row n_local, column 1 is our starting point
+    MPI_Isend(&(SRC(1, n_local)), 1, row_type, south, 0, new_comm, &send_requests[1]);
+    // We send our second easternmost row to our east neighbor
+    // so row 1, column 1 is our starting point
+    MPI_Isend(&(SRC(1,1)), 1, column_type, east, 0, new_comm, &send_requests[2]);
+    // We send our second westernmost row to our south neighbor
+    // so row 1, column m_local is our starting point
+    MPI_Isend(&(SRC(m_local, 1)), 1, column_type, west, 0, new_comm, &send_requests[3]);
+    // if(my_world_rank == 0){
+    //   printf("Done with Isend commands.\n");
+    // }
+              
+    // FOR NOW, WE WON'T DO ANYTHING IN BETWEEN: WE'LL JUST WAIT TO RECEIVE THE HALO POINTS
+    // AND PROCEED IN NORMAL CALCULATION, JUST TO SEE IF THE RESULTS ARE OKAY.
+    // THEN WE'LL MAKE THIS MORE EFFICCIENT.
+
+    MPI_Waitall(4, reception_requests, MPI_STATUSES_IGNORE);
+    MPI_Waitall(4, send_requests, MPI_STATUSES_IGNORE);
+
+    // if(my_world_rank == 0){
+    //   printf("Done with waitall commands.\n");
+    // }
   
+    /********************************/
+
+    error = 0.0;
+    for (y = 1; y < (m_local+1); y++)
+    {
+        for (x = 1; x < (n_local+1); x++)
+        {
+            f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+            updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                            (SRC(x,y-1) + SRC(x,y+1))*cy +
+                            SRC(x,y)*cc - f
+                        )/cc;
+            DST(x,y) = SRC(x,y) - param.relax*updateVal;
+            error += updateVal*updateVal;
+        }
+    }
+    error = sqrt(error)/(n_local*m_local);
+    iterationCount++;
+    // Swap the buffers
+    tmp_local = u_old_local;
+    u_old_local = u_local;
+    u_local = tmp_local;
+    // if(my_world_rank == 0){
+    //   printf("Done with rep.\n");
+    // }
+  }
+
+  t2 = MPI_Wtime();
+  diff = clock() - start;
+  int msec = diff * 1000 / CLOCKS_PER_SEC;
+  if(my_world_rank == 0){
+    printf( "Iterations=%3d Elapsed MPI Wall time is %f\n", iterationCount, t2 - t1 ); 
+    printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
+  }
+  // printf("Residual %g\n",error);
+  
+  /* Cleaning up custom datatypes */
+  MPI_Type_free(&row_type);
+  MPI_Type_free(&column_type);
+  /********************************/
   
   /* Cleaning up */
   free(u_local);
