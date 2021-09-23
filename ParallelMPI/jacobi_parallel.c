@@ -74,17 +74,14 @@ int main(int argc, char* argv[]){
   double *tmp_local, *u_local, *u_old_local, *fXsquared, *fYsquared;
 
   if(comm_size != 80){
-    double root, length;
-    root = sqrt(comm_size);
-    length = xRight - xLeft;
     MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
-    xLeft_local = xLeft + ((double)coords[1])*(length/root);
-    xRight_local = xLeft_local + (length/root);          
-    yUp_local = yUp - ((double)coords[0])*(length/root);
-    yBottom_local = yUp_local - (length/root);
+    double root /*, length*/;
+    root = sqrt(comm_size);
     n_local = param.n/root;
     m_local = param.m/root;
-  }else{
+    xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
+    yBottom_local = yBottom +((double)coords[0])*n_local*param.deltaY;
+  }else{ // WIP: THIS WILL MOST LIKELY REQUIRE CHANGES
     n_local = 105; // We have decided we have divided x axis in 10 subspaces
     m_local = 83; // We have decided to divide y axis in 8 subspaces
     MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
@@ -143,15 +140,6 @@ int main(int argc, char* argv[]){
   }
   /************************/
 
-  /***** A small test for xLeft_local, xRight_local, yUp_local, yBottom_local *****/
-  // if(my_world_rank == 0){
-  //   printf("xLeft_local: %lf\n", xLeft_local);
-  //   printf("xRight_local: %lf\n", xRight_local);
-  //   printf("yUp_local: %lf\n", yUp_local);
-  //   printf("yBottom_local: %lf\n", yBottom_local);
-  // }
-  /***** A small test for xLeft_local, xRight_local, yUp_local, yBottom_local *****/
-
   /* Datatypes for array row and column sending and receiving */
   // We require one data type for sending a row and one for sending a column
   // First, for the row.
@@ -207,14 +195,26 @@ int main(int argc, char* argv[]){
           error += updateVal*updateVal;
       }
   }
-  error = sqrt(error)/(n_local*m_local); // SOS: DO WE NEED THE LOCAL OR GLOBAL ONES HERE??
+  MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
+  error = sqrt(error)/(param.n*param.m);
   iterationCount++;
   // Swap the buffers
   tmp_local = u_old_local;
   u_old_local = u_local;
   u_local = tmp_local;
-  // if(my_world_rank == 0){
-  //   printf("Completed first rep, where fXsquared and fYsquared are calculated.\n");
+  // if(my_world_rank == 2){
+  //   printf("World rank 2 speaking.\nMy coordinates are: (%d,%d)\n", coords[0], coords[1]);
+  //   printf("my xLeft is: %lf\n my yBottom is: %lf\n", xLeft_local, yBottom_local);
+  //   printf("my fY squared is:\n");
+  //   for(int i = 0; i < m_local; i++){
+  //     printf("%lf\t", fYsquared[i]);
+  //   }
+  //   printf("\n");
+  //   printf("my fX squared is:\n");
+  //   for(int i = 0; i < n_local; i++){
+  //     printf("%lf\t", fXsquared[i]);
+  //   }
+  //   printf("\n");
   // }
 
   /* Iterate as long as it takes to meet the convergence criterion */
@@ -237,9 +237,6 @@ int main(int argc, char* argv[]){
     // and we store that in our westernmost one, so row 1, column 0 is our starting point
     MPI_Irecv(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &reception_requests[2]); 
     
-    // if(my_world_rank == 0){
-    //   printf("Done with Irecv commands.\n");
-    // }
     // We send our second northest row to our north neighbor
     // so row 1, column 1 is our starting point
     MPI_Isend(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests[0]);
@@ -262,10 +259,6 @@ int main(int argc, char* argv[]){
 
     MPI_Waitall(4, reception_requests, MPI_STATUSES_IGNORE);
     MPI_Waitall(4, send_requests, MPI_STATUSES_IGNORE);
-
-    // if(my_world_rank == 0){
-    //   printf("Done with waitall commands.\n");
-    // }
   
     /********************************/
 
@@ -283,15 +276,13 @@ int main(int argc, char* argv[]){
             error += updateVal*updateVal;
         }
     }
-    error = sqrt(error)/(n_local*m_local);
+    MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
+    error = sqrt(error)/(param.n*param.m);
     iterationCount++;
     // Swap the buffers
     tmp_local = u_old_local;
     u_old_local = u_local;
     u_local = tmp_local;
-    // if(my_world_rank == 0){
-    //   printf("Done with rep.\n");
-    // }
   }
 
   t2 = MPI_Wtime();
@@ -300,8 +291,8 @@ int main(int argc, char* argv[]){
   if(my_world_rank == 0){
     printf( "Iterations=%3d Elapsed MPI Wall time is %f\n", iterationCount, t2 - t1 ); 
     printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
+    printf("Residual %g\n",error);
   }
-  // printf("Residual %g\n",error);
   
   /* Cleaning up custom datatypes */
   MPI_Type_free(&row_type);
