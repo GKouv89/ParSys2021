@@ -57,6 +57,8 @@ int main(int argc, char* argv[]){
     scanf("%lf", &(param.relax));
     scanf("%lf", &(param.tol));
     scanf("%d", &(param.mits));
+
+    printf("-> %d, %d, %g, %g, %g, %d\n", param.n, param.m, param.alpha, param.relax, param.tol, param.mits);
   }
   param.deltaX = (2.0)/(param.n-1);
   param.deltaY = (2.0)/(param.m-1);
@@ -130,7 +132,7 @@ int main(int argc, char* argv[]){
   }else{
     MPI_Cart_rank(new_comm, neigh_coords, &west);
   }
-  // Calculation of west neighbor
+  // Calculation of east neighbor
   neigh_coords[0] = coords[0];
   neigh_coords[1] = coords[1] + 1;
   if(neigh_coords[1] > dim_size[1] - 1){
@@ -150,8 +152,8 @@ int main(int argc, char* argv[]){
   MPI_Type_contiguous(m_local, MPI_DOUBLE, &row_type); // Length of row == number of columns
   MPI_Type_commit(&row_type);
   MPI_Datatype column_type;
-  MPI_Type_vector(n_local, 1, m_local+1, MPI_DOUBLE, &column_type); // Count == length of column == number of rows
-                                                                  // Stride == length of row == number of columns
+  MPI_Type_vector(n_local, 1, m_local + 2, MPI_DOUBLE, &column_type); // Count == length of column == number of rows
+                                                                     // Stride == length of row == number of columns
   MPI_Type_commit(&column_type);
   /************************************************************/
   
@@ -245,10 +247,10 @@ int main(int argc, char* argv[]){
     MPI_Isend(&(SRC(1, n_local)), 1, row_type, south, 0, new_comm, &send_requests[1]);
     // We send our second easternmost row to our east neighbor
     // so row 1, column 1 is our starting point
-    MPI_Isend(&(SRC(1,1)), 1, column_type, east, 0, new_comm, &send_requests[2]);
+    MPI_Isend(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests[2]);
     // We send our second westernmost row to our south neighbor
     // so row 1, column m_local is our starting point
-    MPI_Isend(&(SRC(m_local, 1)), 1, column_type, west, 0, new_comm, &send_requests[3]);
+    MPI_Isend(&(SRC(m_local, 1)), 1, column_type, east, 0, new_comm, &send_requests[3]);
     // if(my_world_rank == 0){
     //   printf("Done with Isend commands.\n");
     // }
