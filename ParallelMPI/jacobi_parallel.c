@@ -75,22 +75,27 @@ int main(int argc, char* argv[]){
   int n_local, m_local, coords[2];
   double *tmp_local, *u_local, *u_old_local, *fXsquared, *fYsquared;
 
+  MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
   if(comm_size != 80){
-    MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
     double root /*, length*/;
     root = sqrt(comm_size);
     n_local = param.n/root;
     m_local = param.m/root;
     xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
-    yBottom_local = yBottom +((double)coords[0])*n_local*param.deltaY;
+    yBottom_local = yBottom +((double)coords[0])*m_local*param.deltaY;
   }else{ // WIP: THIS WILL MOST LIKELY REQUIRE CHANGES
-    n_local = 105; // We have decided we have divided x axis in 10 subspaces
-    m_local = 83; // We have decided to divide y axis in 8 subspaces
-    MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
-    xLeft_local = xLeft + ((double)coords[1])*0.2;
-    xRight_local = xLeft_local + 0.2;          
-    yUp_local = yUp - ((double)coords[0])*0.25;
-    yBottom_local = yUp_local - 0.25; 
+    // n is the number of rows and m is the number of columns
+    // so m is the number of 'divisions' of the x axis and 
+    // n is the number of 'divisions' of the y axis.
+    // Professor says that the grid should be 8X10
+    // so the number of rows in the cartesian should be 8 and the number of
+    // columns in the cartesian grid should be 10.
+    // Therefore, n_local should be n_global divided by 8
+    // And m_local should be m_global divided by 10, respectively.
+    n_local = param.n/10; 
+    m_local = param.m/8; 
+    xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
+    yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
   }
   u_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
   u_old_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
@@ -142,6 +147,11 @@ int main(int argc, char* argv[]){
   }
   /************************/
 
+  if(coords[0] == 1 && coords[1] == 2){
+    printf("xLeft_local is %lf\tyBottom_local is %lf\n", xLeft_local, yBottom_local);
+  }
+
+
   /* Datatypes for array row and column sending and receiving */
   // We require one data type for sending a row and one for sending a column
   // First, for the row.
@@ -149,10 +159,10 @@ int main(int argc, char* argv[]){
   // native to the current process' data.
   // Create the datatype
   MPI_Datatype row_type;
-  MPI_Type_contiguous(m_local, MPI_DOUBLE, &row_type); // Length of row == number of columns
+  MPI_Type_contiguous(n_local, MPI_DOUBLE, &row_type); // Length of row == number of columns
   MPI_Type_commit(&row_type);
   MPI_Datatype column_type;
-  MPI_Type_vector(n_local, 1, m_local + 2, MPI_DOUBLE, &column_type); // Count == length of column == number of rows
+  MPI_Type_vector(m_local, 1, n_local + 2, MPI_DOUBLE, &column_type); // Count == length of column == number of rows
                                                                      // Stride == length of row == number of columns
   MPI_Type_commit(&column_type);
   /************************************************************/
@@ -204,20 +214,6 @@ int main(int argc, char* argv[]){
   tmp_local = u_old_local;
   u_old_local = u_local;
   u_local = tmp_local;
-  // if(my_world_rank == 2){
-  //   printf("World rank 2 speaking.\nMy coordinates are: (%d,%d)\n", coords[0], coords[1]);
-  //   printf("my xLeft is: %lf\n my yBottom is: %lf\n", xLeft_local, yBottom_local);
-  //   printf("my fY squared is:\n");
-  //   for(int i = 0; i < m_local; i++){
-  //     printf("%lf\t", fYsquared[i]);
-  //   }
-  //   printf("\n");
-  //   printf("my fX squared is:\n");
-  //   for(int i = 0; i < n_local; i++){
-  //     printf("%lf\t", fXsquared[i]);
-  //   }
-  //   printf("\n");
-  // }
 
   /* Iterate as long as it takes to meet the convergence criterion */
   while (iterationCount < maxIterationCount && error > maxAcceptableError)
@@ -229,11 +225,11 @@ int main(int argc, char* argv[]){
     MPI_Irecv(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &reception_requests[0]); 
     // We receive from our south neighbor its northermost row, 
     // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
-    MPI_Irecv(&(SRC(1, n_local + 1)), 1, row_type, south, 0, new_comm, &reception_requests[1]); 
+    MPI_Irecv(&(SRC(1, m_local + 1)), 1, row_type, south, 0, new_comm, &reception_requests[1]); 
     
     // We receive from our east neighbor its westernmost column, 
     // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
-    MPI_Irecv(&(SRC(m_local + 1, 1)), 1, column_type, east, 0, new_comm, &reception_requests[3]); 
+    MPI_Irecv(&(SRC(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &reception_requests[3]); 
     
     // We receive from our west neighbor its easternnmost column, 
     // and we store that in our westernmost one, so row 1, column 0 is our starting point
@@ -244,16 +240,13 @@ int main(int argc, char* argv[]){
     MPI_Isend(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests[0]);
     // We send our second southest row to our south neighbor
     // so row n_local, column 1 is our starting point
-    MPI_Isend(&(SRC(1, n_local)), 1, row_type, south, 0, new_comm, &send_requests[1]);
+    MPI_Isend(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests[1]);
     // We send our second easternmost row to our east neighbor
     // so row 1, column 1 is our starting point
     MPI_Isend(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests[2]);
     // We send our second westernmost row to our south neighbor
     // so row 1, column m_local is our starting point
-    MPI_Isend(&(SRC(m_local, 1)), 1, column_type, east, 0, new_comm, &send_requests[3]);
-    // if(my_world_rank == 0){
-    //   printf("Done with Isend commands.\n");
-    // }
+    MPI_Isend(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests[3]);
               
     // FOR NOW, WE WON'T DO ANYTHING IN BETWEEN: WE'LL JUST WAIT TO RECEIVE THE HALO POINTS
     // AND PROCEED IN NORMAL CALCULATION, JUST TO SEE IF THE RESULTS ARE OKAY.
