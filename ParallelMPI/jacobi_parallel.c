@@ -247,20 +247,11 @@ int main(int argc, char* argv[]){
     // We send our second westernmost row to our south neighbor
     // so row 1, column m_local is our starting point
     MPI_Isend(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests[3]);
-              
-    // FOR NOW, WE WON'T DO ANYTHING IN BETWEEN: WE'LL JUST WAIT TO RECEIVE THE HALO POINTS
-    // AND PROCEED IN NORMAL CALCULATION, JUST TO SEE IF THE RESULTS ARE OKAY.
-    // THEN WE'LL MAKE THIS MORE EFFICCIENT.
-
-    MPI_Waitall(4, reception_requests, MPI_STATUSES_IGNORE);
-    MPI_Waitall(4, send_requests, MPI_STATUSES_IGNORE);
-  
-    /********************************/
 
     error = 0.0;
-    for (y = 1; y < (m_local+1); y++)
+    for (y = 2; y < m_local; y++)
     {
-        for (x = 1; x < (n_local+1); x++)
+        for (x = 2; x < n_local; x++)
         {
             f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
             updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
@@ -271,6 +262,59 @@ int main(int argc, char* argv[]){
             error += updateVal*updateVal;
         }
     }
+              
+    MPI_Waitall(4, reception_requests, MPI_STATUSES_IGNORE);
+
+    // Columns and rows that need halo 
+
+    // Halo is:
+      // x: 2nd and second-to-last (number 1 & n_local)
+      // y: 2nd and second-to-last (number 1 & m_local)
+    y = 1;
+    for (x = 1; x < n_local + 1; x++)
+    {
+        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                        (SRC(x,y-1) + SRC(x,y+1))*cy +
+                        SRC(x,y)*cc - f
+                    )/cc;
+        DST(x,y) = SRC(x,y) - param.relax*updateVal;
+        error += updateVal*updateVal;
+    }
+    y = m_local;
+    for (x = 1; x < n_local + 1; x++)
+    {
+        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                        (SRC(x,y-1) + SRC(x,y+1))*cy +
+                        SRC(x,y)*cc - f
+                    )/cc;
+        DST(x,y) = SRC(x,y) - param.relax*updateVal;
+        error += updateVal*updateVal;
+    }
+    x = 1;
+    y = 1;
+    for (y = 2; y < m_local; y++)
+    {
+        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                        (SRC(x,y-1) + SRC(x,y+1))*cy +
+                        SRC(x,y)*cc - f
+                    )/cc;
+        DST(x,y) = SRC(x,y) - param.relax*updateVal;
+        error += updateVal*updateVal;
+    }
+    x = n_local;
+    for (y = 2; y < m_local; y++)
+    {
+        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                        (SRC(x,y-1) + SRC(x,y+1))*cy +
+                        SRC(x,y)*cc - f
+                    )/cc;
+        DST(x,y) = SRC(x,y) - param.relax*updateVal;
+        error += updateVal*updateVal;
+    }
     MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
     error = sqrt(error)/(param.n*param.m);
     iterationCount++;
@@ -278,6 +322,10 @@ int main(int argc, char* argv[]){
     tmp_local = u_old_local;
     u_old_local = u_local;
     u_local = tmp_local;
+    
+    MPI_Waitall(4, send_requests, MPI_STATUSES_IGNORE);
+  
+    /********************************/
   }
 
   t2 = MPI_Wtime();
