@@ -147,10 +147,6 @@ int main(int argc, char* argv[]){
   }
   /************************/
 
-  if(coords[0] == 1 && coords[1] == 2){
-    printf("xLeft_local is %lf\tyBottom_local is %lf\n", xLeft_local, yBottom_local);
-  }
-
 
   /* Datatypes for array row and column sending and receiving */
   // We require one data type for sending a row and one for sending a column
@@ -215,7 +211,6 @@ int main(int argc, char* argv[]){
   u_old_local = u_local;
   u_local = tmp_local;
 
-  MPI_Request reception_requests[4];
   MPI_Request *send_requests_current = (MPI_Request *)malloc(4*sizeof(MPI_Request));
   MPI_Request *send_requests_former = (MPI_Request *)malloc(4*sizeof(MPI_Request));
   MPI_Request *send_requests_temp;
