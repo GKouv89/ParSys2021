@@ -215,38 +215,50 @@ int main(int argc, char* argv[]){
   u_old_local = u_local;
   u_local = tmp_local;
 
+  MPI_Request reception_requests[4];
+  MPI_Request *send_requests_current = (MPI_Request *)malloc(4*sizeof(MPI_Request));
+  MPI_Request *send_requests_former = (MPI_Request *)malloc(4*sizeof(MPI_Request));
+  MPI_Request *send_requests_temp;
+  // We send our second northest row to our north neighbor
+  // so row 1, column 1 is our starting point
+  MPI_Send_init(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests_current[0]);
+  MPI_Send_init(&(DST(1,1)), 1, row_type, north, 0, new_comm, &send_requests_former[0]);
+  
+  // We send our second southest row to our south neighbor
+  // so row n_local, column 1 is our starting point
+  MPI_Send_init(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_current[1]);
+  MPI_Send_init(&(DST(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_former[1]);
+    
+  // We send our second easternmost row to our east neighbor
+  // so row 1, column 1 is our starting point
+  MPI_Send_init(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests_current[2]);
+  MPI_Send_init(&(DST(1,1)), 1, column_type, west, 0, new_comm, &send_requests_former[2]);
+    
+  // We send our second westernmost row to our south neighbor
+  // so row 1, column m_local is our starting point
+  MPI_Send_init(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_current[3]);
+  MPI_Send_init(&(DST(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_former[3]);
+
+  /* MPI REQUEST POINTER THAT POINTS TO APPROPRIATE SEND_REQUESTS ARRAY. IS IT SINGLE OR DOUBLE? */
+ 
   /* Iterate as long as it takes to meet the convergence criterion */
   while (iterationCount < maxIterationCount && error > maxAcceptableError)
   {    	
     /* COMMUNICATION OF HALO POINTS */
-    MPI_Request reception_requests[4], send_requests[4];
     // We receive from our north neighbor its southmost row, 
     // and we store that in our northermost one, so row 0, column 1 is our starting point
     MPI_Irecv(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &reception_requests[0]); 
     // We receive from our south neighbor its northermost row, 
     // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
     MPI_Irecv(&(SRC(1, m_local + 1)), 1, row_type, south, 0, new_comm, &reception_requests[1]); 
-    
     // We receive from our east neighbor its westernmost column, 
     // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
     MPI_Irecv(&(SRC(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &reception_requests[3]); 
-    
     // We receive from our west neighbor its easternnmost column, 
     // and we store that in our westernmost one, so row 1, column 0 is our starting point
     MPI_Irecv(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &reception_requests[2]); 
-    
-    // We send our second northest row to our north neighbor
-    // so row 1, column 1 is our starting point
-    MPI_Isend(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests[0]);
-    // We send our second southest row to our south neighbor
-    // so row n_local, column 1 is our starting point
-    MPI_Isend(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests[1]);
-    // We send our second easternmost row to our east neighbor
-    // so row 1, column 1 is our starting point
-    MPI_Isend(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests[2]);
-    // We send our second westernmost row to our south neighbor
-    // so row 1, column m_local is our starting point
-    MPI_Isend(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests[3]);
+
+    MPI_Startall(4, send_requests_current);
 
     error = 0.0;
     for (y = 2; y < m_local; y++)
@@ -323,8 +335,12 @@ int main(int argc, char* argv[]){
     u_old_local = u_local;
     u_local = tmp_local;
     
-    MPI_Waitall(4, send_requests, MPI_STATUSES_IGNORE);
-  
+    MPI_Waitall(4, send_requests_current, MPI_STATUSES_IGNORE);
+    
+    send_requests_temp = send_requests_former;
+    send_requests_former = send_requests_current;
+    send_requests_current = send_requests_temp;
+
     /********************************/
   }
 
