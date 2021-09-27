@@ -20,6 +20,9 @@ int main(int argc, char* argv[]){
 	MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
 	if(comm_size != 80){
 		dim_size[1] = dim_size[0] = sqrt(comm_size);
+	}else{
+		dim_size[0] = 8;
+		dim_size[1] = 10;
 	}
 	periods[0] = periods[1] = 0;
 	MPI_Comm new_comm;
@@ -129,79 +132,98 @@ int main(int argc, char* argv[]){
   /************************/
   
   /* TEST FOR NEIGHBORS */
-  /*if(my_world_rank == 0){ // FIRST TEST PASSED
-    printf("Rank 0 has neighbors:\n");
-    if(north != MPI_PROC_NULL){
-      printf("ERROR - NORTH ISN'T NULL\n");
-    }else{
-      printf("No north neighbor\n");
-    }
-    MPI_Cart_coords(new_comm, south, 2, neigh_coords);
-    printf("South: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    if(east != MPI_PROC_NULL){
-      printf("ERROR - EAST ISN'T NULL\n");
-    }else{
-      printf("No east neighbor\n");
-    }
-    MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-  }
-  if(my_world_rank == 1){ // SECOND TEST PASSED
-    printf("Rank 1 has neighbors:\n");
-    if(north != MPI_PROC_NULL){
-      printf("ERROR - NORTH ISN'T NULL\n");
-    }else{
-      printf("No north neighbor\n");
-    }
-    MPI_Cart_coords(new_comm, south, 2, neigh_coords);
-    printf("South: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    MPI_Cart_coords(new_comm, east, 2, neigh_coords);
-    printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-  }
-  if(my_world_rank == 6){ // THIRD TEST PASSED
-    printf("Rank 6 has neighbors:\n");
-    MPI_Cart_coords(new_comm, north, 2, neigh_coords);
-    printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    MPI_Cart_coords(new_comm, south, 2, neigh_coords);
-    printf("South: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    MPI_Cart_coords(new_comm, east, 2, neigh_coords);
-    printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-  }
+  // if(my_world_rank == 0){ // FIRST TEST PASSED
+  //   printf("Rank 0 has neighbors:\n");
+  //   if(north != MPI_PROC_NULL){
+  //     printf("ERROR - NORTH ISN'T NULL\n");
+  //   }else{
+  //     printf("No north neighbor\n");
+  //   }
+  //   MPI_Cart_coords(new_comm, south, 2, neigh_coords);
+  //   printf("South: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   if(east != MPI_PROC_NULL){
+  //     printf("ERROR - EAST ISN'T NULL\n");
+  //   }else{
+  //     printf("No east neighbor\n");
+  //   }
+  //   MPI_Cart_coords(new_comm, west, 2, neigh_coords);
+  //   printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  // }
+  // if(my_world_rank == 1){ // SECOND TEST PASSED
+  //   printf("Rank 1 has neighbors:\n");
+  //   if(north != MPI_PROC_NULL){
+  //     printf("ERROR - NORTH ISN'T NULL\n");
+  //   }else{
+  //     printf("No north neighbor\n");
+  //   }
+  //   MPI_Cart_coords(new_comm, south, 2, neigh_coords);
+  //   printf("South: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   MPI_Cart_coords(new_comm, east, 2, neigh_coords);
+  //   printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   MPI_Cart_coords(new_comm, west, 2, neigh_coords);
+  //   printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  // }
+  // if(my_world_rank == 6){ // THIRD TEST PASSED
+  //   printf("Rank 6 has neighbors:\n");
+  //   MPI_Cart_coords(new_comm, north, 2, neigh_coords);
+  //   printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   MPI_Cart_coords(new_comm, south, 2, neigh_coords);
+  //   printf("South: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   MPI_Cart_coords(new_comm, east, 2, neigh_coords);
+  //   printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   MPI_Cart_coords(new_comm, west, 2, neigh_coords);
+  //   printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  // }
   if(my_world_rank == 23){ // FOURTH TEST PASSED
     printf("Rank 23 has neighbors:\n");
-    MPI_Cart_coords(new_comm, north, 2, neigh_coords);
-    printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    if(south != MPI_PROC_NULL){
-      printf("ERROR - SOUTH ISN'T NULL\t");
-    }else{
-      printf("No south neighbor\t");
+    printf("North: %d\tSouth: %d\tEast: %d\tWest: %d\n", north, south, east, west);
+    enum DIRECTIONS {DOWN, UP, LEFT, RIGHT};
+    char* neighbours_names[4] = {"down", "up", "left", "right"};
+    int neighbours_ranks[4];
+
+    // Let consider dims[0] = X, so the shift tells us our left and right neighbours
+    MPI_Cart_shift(new_comm, 0, 1, &neighbours_ranks[LEFT], &neighbours_ranks[RIGHT]);
+    // Let consider dims[1] = Y, so the shift tells us our up and down neighbours
+    MPI_Cart_shift(new_comm, 1, 1, &neighbours_ranks[DOWN], &neighbours_ranks[UP]);
+    printf("With MPI_Cart_shift, we get these neighbors: \n");
+    printf("North: %d\tSouth: %d\tEast: %d\tWest: %d\n", neighbours_ranks[UP], neighbours_ranks[DOWN], neighbours_ranks[RIGHT], neighbours_ranks[LEFT]);
+
+    for(int i = 0; i < 4; i++){
+	if(neighbours_ranks[i] == MPI_PROC_NULL)
+            printf("I have no %s neighbour.\n", neighbours_names[i]);
+        else
+            printf("I have a %s neighbour: process %d.\n", neighbours_names[i], neighbours_ranks[i]);
     }
-    MPI_Cart_coords(new_comm, east, 2, neigh_coords);
-    printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    MPI_Cart_coords(new_comm, west, 2, neigh_coords);
-    printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+
+    // MPI_Cart_coords(new_comm, north, 2, neigh_coords);
+    // printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+    // if(south != MPI_PROC_NULL){
+    //   printf("ERROR - SOUTH ISN'T NULL\t");
+    // }else{
+    //   printf("No south neighbor\t");
+    // }
+    // MPI_Cart_coords(new_comm, east, 2, neigh_coords);
+    // printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+    // MPI_Cart_coords(new_comm, west, 2, neigh_coords);
+    // printf("West: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
   }
-  if(my_world_rank == 24){ // FIFTH TEST PASSED
-    printf("Rank 24 has neighbors:\n");
-    MPI_Cart_coords(new_comm, north, 2, neigh_coords);
-    printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    if(south != MPI_PROC_NULL){
-      printf("ERROR - SOUTH ISN'T NULL\t");
-    }else{
-      printf("No south neighbor\t");
-    }
-    MPI_Cart_coords(new_comm, east, 2, neigh_coords);
-    printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
-    if(west != MPI_PROC_NULL){
-      printf("ERROR - WEST ISN'T NULL\n");
-    }else{
-      printf("No west neighbor\n");
-    }
-  }*/
+  // if(my_world_rank == 24){ // FIFTH TEST PASSED
+  //   printf("Rank 24 has neighbors:\n");
+  //   MPI_Cart_coords(new_comm, north, 2, neigh_coords);
+  //   printf("North: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   if(south != MPI_PROC_NULL){
+  //     printf("ERROR - SOUTH ISN'T NULL\t");
+  //   }else{
+  //     printf("No south neighbor\t");
+  //   }
+  //   MPI_Cart_coords(new_comm, east, 2, neigh_coords);
+  //   printf("East: (%d, %d)\t", neigh_coords[0], neigh_coords[1]);
+  //   if(west != MPI_PROC_NULL){
+  //     printf("ERROR - WEST ISN'T NULL\n");
+  //   }else{
+  //     printf("No west neighbor\n");
+  //   }
+  // }
   
   
   /* Cleaning up */

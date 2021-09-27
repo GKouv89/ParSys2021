@@ -29,7 +29,7 @@ int main(int argc, char* argv[]){
     }
 	periods[0] = periods[1] = 0;
 	MPI_Comm new_comm;
-	MPI_Cart_create(MPI_COMM_WORLD, 2, dim_size, periods, 0, &new_comm);
+	MPI_Cart_create(MPI_COMM_WORLD, 2, dim_size, periods, 1, &new_comm);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_world_rank);
   /***************************/
   
@@ -112,41 +112,10 @@ int main(int argc, char* argv[]){
   /********************************/
 
   /* Neighbor calculation */
-  int north, south, east, west, neigh_coords[2];
-  // Calculation of north neighbor
-  neigh_coords[0] = coords[0] - 1;
-  neigh_coords[1] = coords[1];
-  if(neigh_coords[0] < 0){
-    north = MPI_PROC_NULL;
-  }else{
-    MPI_Cart_rank(new_comm, neigh_coords, &north);
-  }
-  // Calculation of south neighbor
-  neigh_coords[0] = coords[0] + 1;
-  neigh_coords[1] = coords[1];
-  if(neigh_coords[0] > dim_size[0] - 1){
-    south = MPI_PROC_NULL;
-  }else{
-    MPI_Cart_rank(new_comm, neigh_coords, &south);
-  }
-  // Calculation of west neighbor
-  neigh_coords[0] = coords[0];
-  neigh_coords[1] = coords[1] - 1;
-  if(neigh_coords[1] < 0){
-    west = MPI_PROC_NULL;
-  }else{
-    MPI_Cart_rank(new_comm, neigh_coords, &west);
-  }
-  // Calculation of east neighbor
-  neigh_coords[0] = coords[0];
-  neigh_coords[1] = coords[1] + 1;
-  if(neigh_coords[1] > dim_size[1] - 1){
-    east = MPI_PROC_NULL;
-  }else{
-    MPI_Cart_rank(new_comm, neigh_coords, &east);
-  }
+  int north, south, east, west;
+  MPI_Cart_shift(new_comm, 1, 1, &west, &east);
+  MPI_Cart_shift(new_comm, 0, 1, &north, &south);
   /************************/
-
 
   /* Datatypes for array row and column sending and receiving */
   // We require one data type for sending a row and one for sending a column
@@ -174,8 +143,9 @@ int main(int argc, char* argv[]){
   clock_t start = clock(), diff;
   double t1, t2;
   MPI_Barrier(new_comm);
-  t1 = MPI_Wtime();
-
+  t1 = MPI_Wtime(); 
+  MPI_Pcontrol(1);
+  
   // Coefficients
   double cx = 1.0/(param.deltaX*param.deltaX);
   double cy = 1.0/(param.deltaY*param.deltaY);
@@ -350,6 +320,7 @@ int main(int argc, char* argv[]){
     /********************************/
   }
 
+  MPI_Pcontrol(0);
   t2 = MPI_Wtime();
   diff = clock() - start;
   int msec = diff * 1000 / CLOCKS_PER_SEC;
@@ -373,6 +344,10 @@ int main(int argc, char* argv[]){
   fXsquared = NULL;
   free(fYsquared);
   fYsquared = NULL;
+  free(receive_requests_current);
+  free(receive_requests_former);
+  free(send_requests_current);
+  free(send_requests_former);
   MPI_Finalize();
   /***************/
 	return 0;
