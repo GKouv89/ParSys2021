@@ -1,0 +1,10 @@
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 11 2020/13:45:15)
+mpiP: 
+-> 13440, 13440, 0.8, 1, 1e-13, 50
+Iterations= 50 Elapsed MPI Wall time is 18.490760
+Time taken 18 seconds 415 milliseconds
+Residual 1.32058e-12
+mpiP: 
+mpiP: Storing mpiP output in [./jacobi_parallel.x.9.540047.1.mpiP].
+mpiP: 
