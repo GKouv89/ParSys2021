@@ -1,3 +1,5 @@
 mpicc -O3 -g cart_test.c -L/opt/mpiP-3.5/lib -lmpiP -lbfd -lunwind -o cart_test.x -lm
 mpicc -O3 -g jacobi_parallel.c -L/opt/mpiP-3.5/lib -lmpiP -lbfd -lunwind -o jacobi_parallel.x -lm
 mpicc -O3 -g jacobi_parallel.c -o jacobi_parallel.x -lm
+mpicc -O3 -g jacobi_parallel_noConv.c -L/opt/mpiP-3.5/lib -lmpiP -lbfd -lunwind -o jacobi_parallel.x -lm
+mpicc -O3 -g jacobi_parallel_noConv.c -o jacobi_parallel.x -lm
