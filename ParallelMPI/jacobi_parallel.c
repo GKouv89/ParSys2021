@@ -16,6 +16,33 @@ typedef struct {
   double deltaY;
 } parameters;
 
+double checkSolution(double xStart, double yStart,
+                     int maxXCount, int maxYCount,
+                     double *u,
+                     double deltaX, double deltaY,
+                     double alpha)
+{
+#define U(XX,YY) u[(YY)*maxXCount+(XX)]
+    int x, y;
+    double fX, fY;
+    double localError, error = 0.0;
+
+    for (y = 1; y < (maxYCount-1); y++)
+    {
+        fY = yStart + (y-1)*deltaY;
+        for (x = 1; x < (maxXCount-1); x++)
+        {
+            fX = xStart + (x-1)*deltaX;
+            localError = U(x,y) - (1.0-fX*fX)*(1.0-fY*fY);
+            error += localError*localError;
+        }
+    }
+    return error; // We return this so process with rank zero
+    // will aggregate these and calculate overall error.
+    // The problem is: will this be correct in respects to maxXcount -2 and maxYCount - 2
+    // adding up to overall maxXcount and maxYcount?
+}
+
 int main(int argc, char* argv[]){
 	MPI_Init(&argc, &argv);
   /* Cartesian Grid Creation */
@@ -334,6 +361,21 @@ int main(int argc, char* argv[]){
   MPI_Type_free(&row_type);
   MPI_Type_free(&column_type);
   /********************************/
+
+  // u_old holds the solution after the most recent buffers swap
+  double absoluteError = checkSolution(xLeft_local, yBottom_local,
+                                        n_local+2, m_local+2,
+                                        u_old_local,
+                                        param.deltaX, param.deltaY,
+                                        param.alpha);
+  int my_cart_rank;
+  double absoluteErrorSum;
+  MPI_Comm_rank(new_comm, &my_cart_rank);
+  MPI_Reduce(&absoluteError, &absoluteErrorSum, 1, MPI_DOUBLE, MPI_SUM, 0, new_comm);
+  if(my_cart_rank == 0){
+    absoluteErrorSum = sqrt(absoluteErrorSum)/(param.n*param.m);
+    printf("The error of the iterative solution is %g\n", absoluteErrorSum);
+  }
   
   /* Cleaning up */
   free(u_local);
