@@ -1,0 +1,1615 @@
+@ mpiP
+@ Command : jacobi_parallel.x 
+@ Version                  : 3.5.0
+@ MPIP Build date          : Nov 11 2020, 13:45:15
+@ Start time               : 2021 09 29 17:46:24
+@ Stop time                : 2021 09 29 17:46:24
+@ Timer Used               : PMPI_Wtime
+@ MPIP env var             : -o
+@ Collector Rank           : 0
+@ Collector PID            : 608223
+@ Final Output Dir         : .
+@ Report generation        : Single collector task
+@ MPI Task Assignment      : 0 argo-c0
+@ MPI Task Assignment      : 1 argo-c0
+@ MPI Task Assignment      : 2 argo-c0
+@ MPI Task Assignment      : 3 argo-c0
+@ MPI Task Assignment      : 4 argo-c0
+@ MPI Task Assignment      : 5 argo-c0
+@ MPI Task Assignment      : 6 argo-c0
+@ MPI Task Assignment      : 7 argo-c0
+@ MPI Task Assignment      : 8 argo-c1
+@ MPI Task Assignment      : 9 argo-c1
+@ MPI Task Assignment      : 10 argo-c1
+@ MPI Task Assignment      : 11 argo-c1
+@ MPI Task Assignment      : 12 argo-c1
+@ MPI Task Assignment      : 13 argo-c1
+@ MPI Task Assignment      : 14 argo-c1
+@ MPI Task Assignment      : 15 argo-c1
+
+---------------------------------------------------------------------------
+@--- MPI Time (seconds) ---------------------------------------------------
+---------------------------------------------------------------------------
+Task    AppTime    MPITime     MPI%
+   0      0.161     0.0361    22.42
+   1      0.162     0.0364    22.56
+   2      0.161     0.0368    22.94
+   3      0.158     0.0349    22.05
+   4      0.161     0.0366    22.77
+   5      0.162     0.0375    23.13
+   6      0.158     0.0343    21.69
+   7      0.158     0.0345    21.79
+   8      0.161     0.0347    21.61
+   9      0.162     0.0345    21.34
+  10      0.161     0.0335    20.87
+  11      0.158     0.0301    19.01
+  12      0.161     0.0303    18.86
+  13      0.162     0.0319    19.66
+  14      0.158     0.0264    16.68
+  15      0.158     0.0251    15.89
+   *       2.56      0.534    20.84
+---------------------------------------------------------------------------
+@--- Callsites: 352 -------------------------------------------------------
+---------------------------------------------------------------------------
+ ID Lev File/Address        Line Parent_Funct             MPI_Call
+  1   0 jacobi_parallel.c    337 main                     Waitall
+  2   0 jacobi_parallel.c    240 main                     Recv_init
+  3   0 jacobi_parallel.c    226 main                     Send_init
+  4   0 jacobi_parallel.c    253 main                     Recv_init
+  5   0 jacobi_parallel.c    217 main                     Send_init
+  6   0 jacobi_parallel.c    227 main                     Send_init
+  7   0 jacobi_parallel.c    203 main                     Allreduce
+  8   0 jacobi_parallel.c    241 main                     Recv_init
+  9   0 jacobi_parallel.c    248 main                     Recv_init
+ 10   0 jacobi_parallel.c    244 main                     Recv_init
+ 11   0 jacobi_parallel.c    260 main                     Startall
+ 12   0 jacobi_parallel.c    221 main                     Send_init
+ 13   0 jacobi_parallel.c    231 main                     Send_init
+ 14   0 jacobi_parallel.c    277 main                     Waitall
+ 15   0 jacobi_parallel.c    259 main                     Startall
+ 16   0 jacobi_parallel.c    249 main                     Recv_init
+ 17   0 jacobi_parallel.c    245 main                     Recv_init
+ 18   0 jacobi_parallel.c    232 main                     Send_init
+ 19   0 jacobi_parallel.c    329 main                     Allreduce
+ 20   0 jacobi_parallel.c    252 main                     Recv_init
+ 21   0 jacobi_parallel.c    222 main                     Send_init
+ 22   0 jacobi_parallel.c    216 main                     Send_init
+ 23   0 0x154137275c34           [unknown]                Waitall
+ 24   0 0x1541372728ca           [unknown]                Recv_init
+ 25   0 0x15413727412a           [unknown]                Send_init
+ 26   0 0x1541372728ca           [unknown]                Recv_init
+ 27   0 0x15413727412a           [unknown]                Send_init
+ 28   0 0x15413727412a           [unknown]                Send_init
+ 29   0 0x154137267c32           [unknown]                Allreduce
+ 30   0 0x1541372728ca           [unknown]                Recv_init
+ 31   0 0x1541372728ca           [unknown]                Recv_init
+ 32   0 0x1541372728ca           [unknown]                Recv_init
+ 33   0 0x154137274c3d           [unknown]                Startall
+ 34   0 0x15413727412a           [unknown]                Send_init
+ 35   0 0x15413727412a           [unknown]                Send_init
+ 36   0 0x154137274c3d           [unknown]                Startall
+ 37   0 0x154137275c34           [unknown]                Waitall
+ 38   0 0x1541372728ca           [unknown]                Recv_init
+ 39   0 0x1541372728ca           [unknown]                Recv_init
+ 40   0 0x15413727412a           [unknown]                Send_init
+ 41   0 0x154137267c32           [unknown]                Allreduce
+ 42   0 0x1541372728ca           [unknown]                Recv_init
+ 43   0 0x15413727412a           [unknown]                Send_init
+ 44   0 0x15413727412a           [unknown]                Send_init
+ 45   0 0x14ae606efc34           [unknown]                Waitall
+ 46   0 0x14ae606ee12a           [unknown]                Send_init
+ 47   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 48   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 49   0 0x14ae606ee12a           [unknown]                Send_init
+ 50   0 0x14ae606ee12a           [unknown]                Send_init
+ 51   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 52   0 0x14ae606e1c32           [unknown]                Allreduce
+ 53   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 54   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 55   0 0x14ae606eec3d           [unknown]                Startall
+ 56   0 0x14ae606ee12a           [unknown]                Send_init
+ 57   0 0x14ae606ee12a           [unknown]                Send_init
+ 58   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 59   0 0x14ae606eec3d           [unknown]                Startall
+ 60   0 0x14ae606efc34           [unknown]                Waitall
+ 61   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 62   0 0x14ae606ee12a           [unknown]                Send_init
+ 63   0 0x14ae606e1c32           [unknown]                Allreduce
+ 64   0 0x14ae606ee12a           [unknown]                Send_init
+ 65   0 0x14ae606ec8ca           [unknown]                Recv_init
+ 66   0 0x14ae606ee12a           [unknown]                Send_init
+ 67   0 0x152a62e2cc34           [unknown]                Waitall
+ 68   0 0x152a62e298ca           [unknown]                Recv_init
+ 69   0 0x152a62e2b12a           [unknown]                Send_init
+ 70   0 0x152a62e298ca           [unknown]                Recv_init
+ 71   0 0x152a62e2b12a           [unknown]                Send_init
+ 72   0 0x152a62e2b12a           [unknown]                Send_init
+ 73   0 0x152a62e298ca           [unknown]                Recv_init
+ 74   0 0x152a62e1ec32           [unknown]                Allreduce
+ 75   0 0x152a62e298ca           [unknown]                Recv_init
+ 76   0 0x152a62e298ca           [unknown]                Recv_init
+ 77   0 0x152a62e2bc3d           [unknown]                Startall
+ 78   0 0x152a62e2cc34           [unknown]                Waitall
+ 79   0 0x152a62e2bc3d           [unknown]                Startall
+ 80   0 0x152a62e298ca           [unknown]                Recv_init
+ 81   0 0x152a62e2b12a           [unknown]                Send_init
+ 82   0 0x152a62e2b12a           [unknown]                Send_init
+ 83   0 0x152a62e298ca           [unknown]                Recv_init
+ 84   0 0x152a62e1ec32           [unknown]                Allreduce
+ 85   0 0x152a62e2b12a           [unknown]                Send_init
+ 86   0 0x152a62e298ca           [unknown]                Recv_init
+ 87   0 0x152a62e2b12a           [unknown]                Send_init
+ 88   0 0x152a62e2b12a           [unknown]                Send_init
+ 89   0 0x14ef1b943c34           [unknown]                Waitall
+ 90   0 0x14ef1b9408ca           [unknown]                Recv_init
+ 91   0 0x14ef1b94212a           [unknown]                Send_init
+ 92   0 0x14ef1b9408ca           [unknown]                Recv_init
+ 93   0 0x14ef1b94212a           [unknown]                Send_init
+ 94   0 0x14ef1b94212a           [unknown]                Send_init
+ 95   0 0x14ef1b9408ca           [unknown]                Recv_init
+ 96   0 0x14ef1b935c32           [unknown]                Allreduce
+ 97   0 0x14ef1b9408ca           [unknown]                Recv_init
+ 98   0 0x14ef1b9408ca           [unknown]                Recv_init
+ 99   0 0x14ef1b942c3d           [unknown]                Startall
+100   0 0x14ef1b94212a           [unknown]                Send_init
+101   0 0x14ef1b94212a           [unknown]                Send_init
+102   0 0x14ef1b9408ca           [unknown]                Recv_init
+103   0 0x14ef1b943c34           [unknown]                Waitall
+104   0 0x14ef1b942c3d           [unknown]                Startall
+105   0 0x14ef1b9408ca           [unknown]                Recv_init
+106   0 0x14ef1b94212a           [unknown]                Send_init
+107   0 0x14ef1b935c32           [unknown]                Allreduce
+108   0 0x14ef1b9408ca           [unknown]                Recv_init
+109   0 0x14ef1b94212a           [unknown]                Send_init
+110   0 0x14ef1b94212a           [unknown]                Send_init
+111   0 0x153779bf0c34           [unknown]                Waitall
+112   0 0x153779bed8ca           [unknown]                Recv_init
+113   0 0x153779bef12a           [unknown]                Send_init
+114   0 0x153779bed8ca           [unknown]                Recv_init
+115   0 0x153779bef12a           [unknown]                Send_init
+116   0 0x153779bef12a           [unknown]                Send_init
+117   0 0x153779bed8ca           [unknown]                Recv_init
+118   0 0x153779be2c32           [unknown]                Allreduce
+119   0 0x153779bed8ca           [unknown]                Recv_init
+120   0 0x153779bed8ca           [unknown]                Recv_init
+121   0 0x153779befc3d           [unknown]                Startall
+122   0 0x153779bef12a           [unknown]                Send_init
+123   0 0x153779bef12a           [unknown]                Send_init
+124   0 0x153779bed8ca           [unknown]                Recv_init
+125   0 0x153779befc3d           [unknown]                Startall
+126   0 0x153779bf0c34           [unknown]                Waitall
+127   0 0x153779bed8ca           [unknown]                Recv_init
+128   0 0x153779bef12a           [unknown]                Send_init
+129   0 0x153779be2c32           [unknown]                Allreduce
+130   0 0x153779bed8ca           [unknown]                Recv_init
+131   0 0x153779bef12a           [unknown]                Send_init
+132   0 0x153779bef12a           [unknown]                Send_init
+133   0 0x14d052571c34           [unknown]                Waitall
+134   0 0x14d05257012a           [unknown]                Send_init
+135   0 0x14d05256e8ca           [unknown]                Recv_init
+136   0 0x14d05256e8ca           [unknown]                Recv_init
+137   0 0x14d05257012a           [unknown]                Send_init
+138   0 0x14d05257012a           [unknown]                Send_init
+139   0 0x14d05256e8ca           [unknown]                Recv_init
+140   0 0x14d052563c32           [unknown]                Allreduce
+141   0 0x14d05256e8ca           [unknown]                Recv_init
+142   0 0x14d05256e8ca           [unknown]                Recv_init
+143   0 0x14d052570c3d           [unknown]                Startall
+144   0 0x14d052570c3d           [unknown]                Startall
+145   0 0x14d052571c34           [unknown]                Waitall
+146   0 0x14d05256e8ca           [unknown]                Recv_init
+147   0 0x14d05257012a           [unknown]                Send_init
+148   0 0x14d05257012a           [unknown]                Send_init
+149   0 0x14d05256e8ca           [unknown]                Recv_init
+150   0 0x14d052563c32           [unknown]                Allreduce
+151   0 0x14d05257012a           [unknown]                Send_init
+152   0 0x14d05257012a           [unknown]                Send_init
+153   0 0x14d05256e8ca           [unknown]                Recv_init
+154   0 0x14d05257012a           [unknown]                Send_init
+155   0 0x145a8de88c34           [unknown]                Waitall
+156   0 0x145a8de858ca           [unknown]                Recv_init
+157   0 0x145a8de8712a           [unknown]                Send_init
+158   0 0x145a8de858ca           [unknown]                Recv_init
+159   0 0x145a8de8712a           [unknown]                Send_init
+160   0 0x145a8de8712a           [unknown]                Send_init
+161   0 0x145a8de858ca           [unknown]                Recv_init
+162   0 0x145a8de858ca           [unknown]                Recv_init
+163   0 0x145a8de7ac32           [unknown]                Allreduce
+164   0 0x145a8de858ca           [unknown]                Recv_init
+165   0 0x145a8de87c3d           [unknown]                Startall
+166   0 0x145a8de858ca           [unknown]                Recv_init
+167   0 0x145a8de88c34           [unknown]                Waitall
+168   0 0x145a8de87c3d           [unknown]                Startall
+169   0 0x145a8de8712a           [unknown]                Send_init
+170   0 0x145a8de8712a           [unknown]                Send_init
+171   0 0x145a8de858ca           [unknown]                Recv_init
+172   0 0x145a8de7ac32           [unknown]                Allreduce
+173   0 0x145a8de8712a           [unknown]                Send_init
+174   0 0x145a8de858ca           [unknown]                Recv_init
+175   0 0x145a8de8712a           [unknown]                Send_init
+176   0 0x145a8de8712a           [unknown]                Send_init
+177   0 0x14abcf123c34           [unknown]                Waitall
+178   0 0x14abcf1208ca           [unknown]                Recv_init
+179   0 0x14abcf12212a           [unknown]                Send_init
+180   0 0x14abcf1208ca           [unknown]                Recv_init
+181   0 0x14abcf12212a           [unknown]                Send_init
+182   0 0x14abcf12212a           [unknown]                Send_init
+183   0 0x14abcf1208ca           [unknown]                Recv_init
+184   0 0x14abcf1208ca           [unknown]                Recv_init
+185   0 0x14abcf115c32           [unknown]                Allreduce
+186   0 0x14abcf1208ca           [unknown]                Recv_init
+187   0 0x14abcf122c3d           [unknown]                Startall
+188   0 0x14abcf1208ca           [unknown]                Recv_init
+189   0 0x14abcf122c3d           [unknown]                Startall
+190   0 0x14abcf123c34           [unknown]                Waitall
+191   0 0x14abcf12212a           [unknown]                Send_init
+192   0 0x14abcf12212a           [unknown]                Send_init
+193   0 0x14abcf1208ca           [unknown]                Recv_init
+194   0 0x14abcf115c32           [unknown]                Allreduce
+195   0 0x14abcf12212a           [unknown]                Send_init
+196   0 0x14abcf1208ca           [unknown]                Recv_init
+197   0 0x14abcf12212a           [unknown]                Send_init
+198   0 0x14abcf12212a           [unknown]                Send_init
+199   0 0x148bc47c3c34           [unknown]                Waitall
+200   0 0x148bc47c212a           [unknown]                Send_init
+201   0 0x148bc47c08ca           [unknown]                Recv_init
+202   0 0x148bc47c08ca           [unknown]                Recv_init
+203   0 0x148bc47c212a           [unknown]                Send_init
+204   0 0x148bc47c212a           [unknown]                Send_init
+205   0 0x148bc47c08ca           [unknown]                Recv_init
+206   0 0x148bc47b5c32           [unknown]                Allreduce
+207   0 0x148bc47c08ca           [unknown]                Recv_init
+208   0 0x148bc47c08ca           [unknown]                Recv_init
+209   0 0x148bc47c2c3d           [unknown]                Startall
+210   0 0x148bc47c3c34           [unknown]                Waitall
+211   0 0x148bc47c2c3d           [unknown]                Startall
+212   0 0x148bc47c08ca           [unknown]                Recv_init
+213   0 0x148bc47c212a           [unknown]                Send_init
+214   0 0x148bc47c212a           [unknown]                Send_init
+215   0 0x148bc47c08ca           [unknown]                Recv_init
+216   0 0x148bc47b5c32           [unknown]                Allreduce
+217   0 0x148bc47c212a           [unknown]                Send_init
+218   0 0x148bc47c212a           [unknown]                Send_init
+219   0 0x148bc47c08ca           [unknown]                Recv_init
+220   0 0x148bc47c212a           [unknown]                Send_init
+221   0 0x1520c5329c34           [unknown]                Waitall
+222   0 0x1520c532812a           [unknown]                Send_init
+223   0 0x1520c53268ca           [unknown]                Recv_init
+224   0 0x1520c53268ca           [unknown]                Recv_init
+225   0 0x1520c532812a           [unknown]                Send_init
+226   0 0x1520c532812a           [unknown]                Send_init
+227   0 0x1520c531bc32           [unknown]                Allreduce
+228   0 0x1520c53268ca           [unknown]                Recv_init
+229   0 0x1520c53268ca           [unknown]                Recv_init
+230   0 0x1520c53268ca           [unknown]                Recv_init
+231   0 0x1520c5328c3d           [unknown]                Startall
+232   0 0x1520c532812a           [unknown]                Send_init
+233   0 0x1520c532812a           [unknown]                Send_init
+234   0 0x1520c5329c34           [unknown]                Waitall
+235   0 0x1520c5328c3d           [unknown]                Startall
+236   0 0x1520c53268ca           [unknown]                Recv_init
+237   0 0x1520c53268ca           [unknown]                Recv_init
+238   0 0x1520c532812a           [unknown]                Send_init
+239   0 0x1520c531bc32           [unknown]                Allreduce
+240   0 0x1520c532812a           [unknown]                Send_init
+241   0 0x1520c53268ca           [unknown]                Recv_init
+242   0 0x1520c532812a           [unknown]                Send_init
+243   0 0x14bae85fcc34           [unknown]                Waitall
+244   0 0x14bae85fb12a           [unknown]                Send_init
+245   0 0x14bae85f98ca           [unknown]                Recv_init
+246   0 0x14bae85f98ca           [unknown]                Recv_init
+247   0 0x14bae85fb12a           [unknown]                Send_init
+248   0 0x14bae85fb12a           [unknown]                Send_init
+249   0 0x14bae85f98ca           [unknown]                Recv_init
+250   0 0x14bae85f98ca           [unknown]                Recv_init
+251   0 0x14bae85eec32           [unknown]                Allreduce
+252   0 0x14bae85f98ca           [unknown]                Recv_init
+253   0 0x14bae85fbc3d           [unknown]                Startall
+254   0 0x14bae85f98ca           [unknown]                Recv_init
+255   0 0x14bae85fbc3d           [unknown]                Startall
+256   0 0x14bae85fcc34           [unknown]                Waitall
+257   0 0x14bae85fb12a           [unknown]                Send_init
+258   0 0x14bae85fb12a           [unknown]                Send_init
+259   0 0x14bae85f98ca           [unknown]                Recv_init
+260   0 0x14bae85eec32           [unknown]                Allreduce
+261   0 0x14bae85fb12a           [unknown]                Send_init
+262   0 0x14bae85fb12a           [unknown]                Send_init
+263   0 0x14bae85f98ca           [unknown]                Recv_init
+264   0 0x14bae85fb12a           [unknown]                Send_init
+265   0 0x15405c09cc34           [unknown]                Waitall
+266   0 0x15405c09b12a           [unknown]                Send_init
+267   0 0x15405c0998ca           [unknown]                Recv_init
+268   0 0x15405c0998ca           [unknown]                Recv_init
+269   0 0x15405c09b12a           [unknown]                Send_init
+270   0 0x15405c09b12a           [unknown]                Send_init
+271   0 0x15405c0998ca           [unknown]                Recv_init
+272   0 0x15405c0998ca           [unknown]                Recv_init
+273   0 0x15405c08ec32           [unknown]                Allreduce
+274   0 0x15405c0998ca           [unknown]                Recv_init
+275   0 0x15405c09bc3d           [unknown]                Startall
+276   0 0x15405c0998ca           [unknown]                Recv_init
+277   0 0x15405c09cc34           [unknown]                Waitall
+278   0 0x15405c09bc3d           [unknown]                Startall
+279   0 0x15405c09b12a           [unknown]                Send_init
+280   0 0x15405c09b12a           [unknown]                Send_init
+281   0 0x15405c0998ca           [unknown]                Recv_init
+282   0 0x15405c08ec32           [unknown]                Allreduce
+283   0 0x15405c09b12a           [unknown]                Send_init
+284   0 0x15405c09b12a           [unknown]                Send_init
+285   0 0x15405c0998ca           [unknown]                Recv_init
+286   0 0x15405c09b12a           [unknown]                Send_init
+287   0 0x154d64137c34           [unknown]                Waitall
+288   0 0x154d641348ca           [unknown]                Recv_init
+289   0 0x154d6413612a           [unknown]                Send_init
+290   0 0x154d641348ca           [unknown]                Recv_init
+291   0 0x154d6413612a           [unknown]                Send_init
+292   0 0x154d6413612a           [unknown]                Send_init
+293   0 0x154d641348ca           [unknown]                Recv_init
+294   0 0x154d64129c32           [unknown]                Allreduce
+295   0 0x154d641348ca           [unknown]                Recv_init
+296   0 0x154d641348ca           [unknown]                Recv_init
+297   0 0x154d64136c3d           [unknown]                Startall
+298   0 0x154d64136c3d           [unknown]                Startall
+299   0 0x154d64137c34           [unknown]                Waitall
+300   0 0x154d641348ca           [unknown]                Recv_init
+301   0 0x154d6413612a           [unknown]                Send_init
+302   0 0x154d6413612a           [unknown]                Send_init
+303   0 0x154d641348ca           [unknown]                Recv_init
+304   0 0x154d64129c32           [unknown]                Allreduce
+305   0 0x154d6413612a           [unknown]                Send_init
+306   0 0x154d641348ca           [unknown]                Recv_init
+307   0 0x154d6413612a           [unknown]                Send_init
+308   0 0x154d6413612a           [unknown]                Send_init
+309   0 0x14c2c782cc34           [unknown]                Waitall
+310   0 0x14c2c782b12a           [unknown]                Send_init
+311   0 0x14c2c78298ca           [unknown]                Recv_init
+312   0 0x14c2c78298ca           [unknown]                Recv_init
+313   0 0x14c2c782b12a           [unknown]                Send_init
+314   0 0x14c2c782b12a           [unknown]                Send_init
+315   0 0x14c2c781ec32           [unknown]                Allreduce
+316   0 0x14c2c78298ca           [unknown]                Recv_init
+317   0 0x14c2c78298ca           [unknown]                Recv_init
+318   0 0x14c2c78298ca           [unknown]                Recv_init
+319   0 0x14c2c782bc3d           [unknown]                Startall
+320   0 0x14c2c782b12a           [unknown]                Send_init
+321   0 0x14c2c782b12a           [unknown]                Send_init
+322   0 0x14c2c782bc3d           [unknown]                Startall
+323   0 0x14c2c782cc34           [unknown]                Waitall
+324   0 0x14c2c78298ca           [unknown]                Recv_init
+325   0 0x14c2c78298ca           [unknown]                Recv_init
+326   0 0x14c2c782b12a           [unknown]                Send_init
+327   0 0x14c2c781ec32           [unknown]                Allreduce
+328   0 0x14c2c782b12a           [unknown]                Send_init
+329   0 0x14c2c78298ca           [unknown]                Recv_init
+330   0 0x14c2c782b12a           [unknown]                Send_init
+331   0 0x15032c3dfc34           [unknown]                Waitall
+332   0 0x15032c3de12a           [unknown]                Send_init
+333   0 0x15032c3dc8ca           [unknown]                Recv_init
+334   0 0x15032c3dc8ca           [unknown]                Recv_init
+335   0 0x15032c3de12a           [unknown]                Send_init
+336   0 0x15032c3de12a           [unknown]                Send_init
+337   0 0x15032c3dc8ca           [unknown]                Recv_init
+338   0 0x15032c3d1c32           [unknown]                Allreduce
+339   0 0x15032c3dc8ca           [unknown]                Recv_init
+340   0 0x15032c3dc8ca           [unknown]                Recv_init
+341   0 0x15032c3dec3d           [unknown]                Startall
+342   0 0x15032c3de12a           [unknown]                Send_init
+343   0 0x15032c3de12a           [unknown]                Send_init
+344   0 0x15032c3dc8ca           [unknown]                Recv_init
+345   0 0x15032c3dfc34           [unknown]                Waitall
+346   0 0x15032c3dec3d           [unknown]                Startall
+347   0 0x15032c3dc8ca           [unknown]                Recv_init
+348   0 0x15032c3de12a           [unknown]                Send_init
+349   0 0x15032c3d1c32           [unknown]                Allreduce
+350   0 0x15032c3de12a           [unknown]                Send_init
+351   0 0x15032c3dc8ca           [unknown]                Recv_init
+352   0 0x15032c3de12a           [unknown]                Send_init
+---------------------------------------------------------------------------
+@--- Aggregate Time (top twenty, descending, milliseconds) ----------------
+---------------------------------------------------------------------------
+Call                 Site       Time    App%    MPI%      Count    COV
+Allreduce              19       18.8    0.73    3.53         49   0.00
+Allreduce             107       18.6    0.72    3.48         49   0.00
+Allreduce             129       18.5    0.72    3.47         49   0.00
+Allreduce              41       14.2    0.55    2.66         49   0.00
+Allreduce              63       12.8    0.50    2.39         49   0.00
+Allreduce             239       12.6    0.49    2.36         49   0.00
+Allreduce             349       12.5    0.49    2.33         49   0.00
+Allreduce             216       12.1    0.47    2.27         49   0.00
+Allreduce             327       11.4    0.45    2.14         49   0.00
+Allreduce             150       10.8    0.42    2.02         49   0.00
+Allreduce             140       10.5    0.41    1.97          1   0.00
+Allreduce             282       10.4    0.41    1.95         49   0.00
+Allreduce              84       10.2    0.40    1.92         49   0.00
+Allreduce             315       9.92    0.39    1.86          1   0.00
+Allreduce             294       9.82    0.38    1.84          1   0.00
+Allreduce              29       9.52    0.37    1.78          1   0.00
+Allreduce             260       8.99    0.35    1.69         49   0.00
+Send_init              88        8.8    0.34    1.65          1   0.00
+Waitall                37       8.76    0.34    1.64         49   0.00
+Send_init             176       8.66    0.34    1.62          1   0.00
+---------------------------------------------------------------------------
+@--- Aggregate Sent Message Size (top twenty, descending, bytes) ----------
+---------------------------------------------------------------------------
+Call                 Site      Count      Total       Avrg  Sent%
+Allreduce             194         49        392          8   6.12
+Allreduce             216         49        392          8   6.12
+Allreduce             239         49        392          8   6.12
+Allreduce             129         49        392          8   6.12
+Allreduce             150         49        392          8   6.12
+Allreduce             172         49        392          8   6.12
+Allreduce             327         49        392          8   6.12
+Allreduce              84         49        392          8   6.12
+Allreduce             349         49        392          8   6.12
+Allreduce             107         49        392          8   6.12
+Allreduce             260         49        392          8   6.12
+Allreduce              19         49        392          8   6.12
+Allreduce             282         49        392          8   6.12
+Allreduce              41         49        392          8   6.12
+Allreduce             304         49        392          8   6.12
+Allreduce              63         49        392          8   6.12
+Allreduce             206          1          8          8   0.12
+Allreduce             227          1          8          8   0.12
+Allreduce             251          1          8          8   0.12
+Allreduce             140          1          8          8   0.12
+---------------------------------------------------------------------------
+@--- Callsite Time statistics (all, milliseconds): 352 --------------------
+---------------------------------------------------------------------------
+Name              Site Rank  Count      Max     Mean      Min   App%   MPI%
+Allreduce            7    0      1     7.86     7.86     7.86   4.89  21.80
+Allreduce            7    *      1     7.86     7.86     7.86   0.31   1.47
+
+Allreduce           19    0     49     5.57    0.384   0.0321  11.70  52.19
+Allreduce           19    *     49     5.57    0.384   0.0321   0.73   3.53
+
+Allreduce           29    1      1     9.52     9.52     9.52   5.89  26.11
+Allreduce           29    *      1     9.52     9.52     9.52   0.37   1.78
+
+Allreduce           41    1     49     2.61     0.29   0.0541   8.79  38.96
+Allreduce           41    *     49     2.61     0.29   0.0541   0.55   2.66
+
+Allreduce           52    7      1     6.31     6.31     6.31   3.99  18.31
+Allreduce           52    *      1     6.31     6.31     6.31   0.25   1.18
+
+Allreduce           63    7     49     1.04    0.261    0.163   8.08  37.09
+Allreduce           63    *     49     1.04    0.261    0.163   0.50   2.39
+
+Allreduce           74    8      1     7.93     7.93     7.93   4.94  22.84
+Allreduce           74    *      1     7.93     7.93     7.93   0.31   1.49
+
+Allreduce           84    8     49     1.01    0.209    0.143   6.37  29.48
+Allreduce           84    *     49     1.01    0.209    0.143   0.40   1.92
+
+Allreduce           96    2      1     7.69     7.69     7.69   4.79  20.87
+Allreduce           96    *      1     7.69     7.69     7.69   0.30   1.44
+
+Allreduce          107    2     49     5.56    0.379    0.162  11.56  50.38
+Allreduce          107    *     49     5.56    0.379    0.162   0.72   3.48
+
+Allreduce          118    3      1     6.42     6.42     6.42   4.06  18.39
+Allreduce          118    *      1     6.42     6.42     6.42   0.25   1.20
+
+Allreduce          129    3     49     4.78    0.378    0.184  11.70  53.06
+Allreduce          129    *     49     4.78    0.378    0.184   0.72   3.47
+
+Allreduce          140   13      1     10.5     10.5     10.5   6.47  32.91
+Allreduce          140    *      1     10.5     10.5     10.5   0.41   1.97
+
+Allreduce          150   13     49     4.85     0.22   0.0624   6.65  33.84
+Allreduce          150    *     49     4.85     0.22   0.0624   0.42   2.02
+
+Allreduce          163   10      1     7.96     7.96     7.96   4.96  23.75
+Allreduce          163    *      1     7.96     7.96     7.96   0.31   1.49
+
+Allreduce          172   10     49     1.02    0.165   0.0926   5.02  24.05
+Allreduce          172    *     49     1.02    0.165   0.0926   0.31   1.51
+
+Allreduce          185   11      1      6.3      6.3      6.3   3.98  20.94
+Allreduce          185    *      1      6.3      6.3      6.3   0.25   1.18
+
+Allreduce          194   11     49     1.01    0.145   0.0426   4.49  23.63
+Allreduce          194    *     49     1.01    0.145   0.0426   0.28   1.33
+
+Allreduce          206   12      1     7.96     7.96     7.96   4.95  26.26
+Allreduce          206    *      1     7.96     7.96     7.96   0.31   1.49
+
+Allreduce          216   12     49      5.4    0.247   0.0465   7.54  39.97
+Allreduce          216    *     49      5.4    0.247   0.0465   0.47   2.27
+
+Allreduce          227    4      1     7.81     7.81     7.81   4.85  21.31
+Allreduce          227    *      1     7.81     7.81     7.81   0.30   1.46
+
+Allreduce          239    4     49     1.02    0.258    0.161   7.85  34.46
+Allreduce          239    *     49     1.02    0.258    0.161   0.49   2.36
+
+Allreduce          251   15      1     6.31     6.31     6.31   3.99  25.10
+Allreduce          251    *      1     6.31     6.31     6.31   0.25   1.18
+
+Allreduce          260   15     49     4.91    0.184   0.0314   5.69  35.78
+Allreduce          260    *     49     4.91    0.184   0.0314   0.35   1.69
+
+Allreduce          273   14      1     5.26     5.26     5.26   3.33  19.94
+Allreduce          273    *      1     5.26     5.26     5.26   0.21   0.98
+
+Allreduce          282   14     49     5.48    0.212   0.0636   6.57  39.41
+Allreduce          282    *     49     5.48    0.212   0.0636   0.41   1.95
+
+Allreduce          294    9      1     9.82     9.82     9.82   6.07  28.47
+Allreduce          294    *      1     9.82     9.82     9.82   0.38   1.84
+
+Allreduce          304    9     49     1.01    0.155   0.0252   4.71  22.05
+Allreduce          304    *     49     1.01    0.155   0.0252   0.30   1.42
+
+Allreduce          315    5      1     9.92     9.92     9.92   6.11  26.43
+Allreduce          315    *      1     9.92     9.92     9.92   0.39   1.86
+
+Allreduce          327    5     49     1.02    0.233    0.119   7.05  30.47
+Allreduce          327    *     49     1.02    0.233    0.119   0.45   2.14
+
+Allreduce          338    6      1     5.35     5.35     5.35   3.38  15.60
+Allreduce          338    *      1     5.35     5.35     5.35   0.21   1.00
+
+Allreduce          349    6     49     0.92    0.254    0.133   7.88  36.33
+Allreduce          349    *     49     0.92    0.254    0.133   0.49   2.33
+
+Recv_init            2    0      1    0.021    0.021    0.021   0.01   0.06
+Recv_init            2    *      1    0.021    0.021    0.021   0.00   0.00
+
+Recv_init            4    0      1  0.00905  0.00905  0.00905   0.01   0.03
+Recv_init            4    *      1  0.00905  0.00905  0.00905   0.00   0.00
+
+Recv_init            8    0      1  0.00917  0.00917  0.00917   0.01   0.03
+Recv_init            8    *      1  0.00917  0.00917  0.00917   0.00   0.00
+
+Recv_init            9    0      1   0.0089   0.0089   0.0089   0.01   0.02
+Recv_init            9    *      1   0.0089   0.0089   0.0089   0.00   0.00
+
+Recv_init           10    0      1  0.00975  0.00975  0.00975   0.01   0.03
+Recv_init           10    *      1  0.00975  0.00975  0.00975   0.00   0.00
+
+Recv_init           16    0      1  0.00909  0.00909  0.00909   0.01   0.03
+Recv_init           16    *      1  0.00909  0.00909  0.00909   0.00   0.00
+
+Recv_init           17    0      1  0.00896  0.00896  0.00896   0.01   0.02
+Recv_init           17    *      1  0.00896  0.00896  0.00896   0.00   0.00
+
+Recv_init           20    0      1  0.00897  0.00897  0.00897   0.01   0.02
+Recv_init           20    *      1  0.00897  0.00897  0.00897   0.00   0.00
+
+Recv_init           24    1      1   0.0196   0.0196   0.0196   0.01   0.05
+Recv_init           24    *      1   0.0196   0.0196   0.0196   0.00   0.00
+
+Recv_init           26    1      1  0.00927  0.00927  0.00927   0.01   0.03
+Recv_init           26    *      1  0.00927  0.00927  0.00927   0.00   0.00
+
+Recv_init           30    1      1  0.00998  0.00998  0.00998   0.01   0.03
+Recv_init           30    *      1  0.00998  0.00998  0.00998   0.00   0.00
+
+Recv_init           31    1      1   0.0152   0.0152   0.0152   0.01   0.04
+Recv_init           31    *      1   0.0152   0.0152   0.0152   0.00   0.00
+
+Recv_init           32    1      1   0.0104   0.0104   0.0104   0.01   0.03
+Recv_init           32    *      1   0.0104   0.0104   0.0104   0.00   0.00
+
+Recv_init           38    1      1  0.00933  0.00933  0.00933   0.01   0.03
+Recv_init           38    *      1  0.00933  0.00933  0.00933   0.00   0.00
+
+Recv_init           39    1      1  0.00976  0.00976  0.00976   0.01   0.03
+Recv_init           39    *      1  0.00976  0.00976  0.00976   0.00   0.00
+
+Recv_init           42    1      1  0.00935  0.00935  0.00935   0.01   0.03
+Recv_init           42    *      1  0.00935  0.00935  0.00935   0.00   0.00
+
+Recv_init           47    7      1   0.0206   0.0206   0.0206   0.01   0.06
+Recv_init           47    *      1   0.0206   0.0206   0.0206   0.00   0.00
+
+Recv_init           48    7      1   0.0103   0.0103   0.0103   0.01   0.03
+Recv_init           48    *      1   0.0103   0.0103   0.0103   0.00   0.00
+
+Recv_init           51    7      1  0.00953  0.00953  0.00953   0.01   0.03
+Recv_init           51    *      1  0.00953  0.00953  0.00953   0.00   0.00
+
+Recv_init           53    7      1  0.00925  0.00925  0.00925   0.01   0.03
+Recv_init           53    *      1  0.00925  0.00925  0.00925   0.00   0.00
+
+Recv_init           54    7      1  0.00933  0.00933  0.00933   0.01   0.03
+Recv_init           54    *      1  0.00933  0.00933  0.00933   0.00   0.00
+
+Recv_init           58    7      1  0.00916  0.00916  0.00916   0.01   0.03
+Recv_init           58    *      1  0.00916  0.00916  0.00916   0.00   0.00
+
+Recv_init           61    7      1  0.00933  0.00933  0.00933   0.01   0.03
+Recv_init           61    *      1  0.00933  0.00933  0.00933   0.00   0.00
+
+Recv_init           65    7      1  0.00947  0.00947  0.00947   0.01   0.03
+Recv_init           65    *      1  0.00947  0.00947  0.00947   0.00   0.00
+
+Recv_init           68    8      1   0.0217   0.0217   0.0217   0.01   0.06
+Recv_init           68    *      1   0.0217   0.0217   0.0217   0.00   0.00
+
+Recv_init           70    8      1   0.0093   0.0093   0.0093   0.01   0.03
+Recv_init           70    *      1   0.0093   0.0093   0.0093   0.00   0.00
+
+Recv_init           73    8      1  0.00926  0.00926  0.00926   0.01   0.03
+Recv_init           73    *      1  0.00926  0.00926  0.00926   0.00   0.00
+
+Recv_init           75    8      1   0.0101   0.0101   0.0101   0.01   0.03
+Recv_init           75    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init           76    8      1  0.00926  0.00926  0.00926   0.01   0.03
+Recv_init           76    *      1  0.00926  0.00926  0.00926   0.00   0.00
+
+Recv_init           80    8      1  0.00918  0.00918  0.00918   0.01   0.03
+Recv_init           80    *      1  0.00918  0.00918  0.00918   0.00   0.00
+
+Recv_init           83    8      1  0.00925  0.00925  0.00925   0.01   0.03
+Recv_init           83    *      1  0.00925  0.00925  0.00925   0.00   0.00
+
+Recv_init           86    8      1   0.0092   0.0092   0.0092   0.01   0.03
+Recv_init           86    *      1   0.0092   0.0092   0.0092   0.00   0.00
+
+Recv_init           90    2      1   0.0215   0.0215   0.0215   0.01   0.06
+Recv_init           90    *      1   0.0215   0.0215   0.0215   0.00   0.00
+
+Recv_init           92    2      1  0.00902  0.00902  0.00902   0.01   0.02
+Recv_init           92    *      1  0.00902  0.00902  0.00902   0.00   0.00
+
+Recv_init           95    2      1  0.00916  0.00916  0.00916   0.01   0.02
+Recv_init           95    *      1  0.00916  0.00916  0.00916   0.00   0.00
+
+Recv_init           97    2      1  0.00914  0.00914  0.00914   0.01   0.02
+Recv_init           97    *      1  0.00914  0.00914  0.00914   0.00   0.00
+
+Recv_init           98    2      1   0.0098   0.0098   0.0098   0.01   0.03
+Recv_init           98    *      1   0.0098   0.0098   0.0098   0.00   0.00
+
+Recv_init          102    2      1  0.00914  0.00914  0.00914   0.01   0.02
+Recv_init          102    *      1  0.00914  0.00914  0.00914   0.00   0.00
+
+Recv_init          105    2      1  0.00909  0.00909  0.00909   0.01   0.02
+Recv_init          105    *      1  0.00909  0.00909  0.00909   0.00   0.00
+
+Recv_init          108    2      1  0.00908  0.00908  0.00908   0.01   0.02
+Recv_init          108    *      1  0.00908  0.00908  0.00908   0.00   0.00
+
+Recv_init          112    3      1   0.0193   0.0193   0.0193   0.01   0.06
+Recv_init          112    *      1   0.0193   0.0193   0.0193   0.00   0.00
+
+Recv_init          114    3      1  0.00934  0.00934  0.00934   0.01   0.03
+Recv_init          114    *      1  0.00934  0.00934  0.00934   0.00   0.00
+
+Recv_init          117    3      1   0.0143   0.0143   0.0143   0.01   0.04
+Recv_init          117    *      1   0.0143   0.0143   0.0143   0.00   0.00
+
+Recv_init          119    3      1  0.00894  0.00894  0.00894   0.01   0.03
+Recv_init          119    *      1  0.00894  0.00894  0.00894   0.00   0.00
+
+Recv_init          120    3      1     0.01     0.01     0.01   0.01   0.03
+Recv_init          120    *      1     0.01     0.01     0.01   0.00   0.00
+
+Recv_init          124    3      1  0.00906  0.00906  0.00906   0.01   0.03
+Recv_init          124    *      1  0.00906  0.00906  0.00906   0.00   0.00
+
+Recv_init          127    3      1  0.00921  0.00921  0.00921   0.01   0.03
+Recv_init          127    *      1  0.00921  0.00921  0.00921   0.00   0.00
+
+Recv_init          130    3      1  0.00892  0.00892  0.00892   0.01   0.03
+Recv_init          130    *      1  0.00892  0.00892  0.00892   0.00   0.00
+
+Recv_init          135   13      1   0.0209   0.0209   0.0209   0.01   0.07
+Recv_init          135    *      1   0.0209   0.0209   0.0209   0.00   0.00
+
+Recv_init          136   13      1  0.00997  0.00997  0.00997   0.01   0.03
+Recv_init          136    *      1  0.00997  0.00997  0.00997   0.00   0.00
+
+Recv_init          139   13      1   0.0096   0.0096   0.0096   0.01   0.03
+Recv_init          139    *      1   0.0096   0.0096   0.0096   0.00   0.00
+
+Recv_init          141   13      1  0.00993  0.00993  0.00993   0.01   0.03
+Recv_init          141    *      1  0.00993  0.00993  0.00993   0.00   0.00
+
+Recv_init          142   13      1  0.00986  0.00986  0.00986   0.01   0.03
+Recv_init          142    *      1  0.00986  0.00986  0.00986   0.00   0.00
+
+Recv_init          146   13      1  0.00949  0.00949  0.00949   0.01   0.03
+Recv_init          146    *      1  0.00949  0.00949  0.00949   0.00   0.00
+
+Recv_init          149   13      1   0.0092   0.0092   0.0092   0.01   0.03
+Recv_init          149    *      1   0.0092   0.0092   0.0092   0.00   0.00
+
+Recv_init          153   13      1  0.00942  0.00942  0.00942   0.01   0.03
+Recv_init          153    *      1  0.00942  0.00942  0.00942   0.00   0.00
+
+Recv_init          156   10      1   0.0225   0.0225   0.0225   0.01   0.07
+Recv_init          156    *      1   0.0225   0.0225   0.0225   0.00   0.00
+
+Recv_init          158   10      1  0.00908  0.00908  0.00908   0.01   0.03
+Recv_init          158    *      1  0.00908  0.00908  0.00908   0.00   0.00
+
+Recv_init          161   10      1  0.00961  0.00961  0.00961   0.01   0.03
+Recv_init          161    *      1  0.00961  0.00961  0.00961   0.00   0.00
+
+Recv_init          162   10      1  0.00961  0.00961  0.00961   0.01   0.03
+Recv_init          162    *      1  0.00961  0.00961  0.00961   0.00   0.00
+
+Recv_init          164   10      1  0.00921  0.00921  0.00921   0.01   0.03
+Recv_init          164    *      1  0.00921  0.00921  0.00921   0.00   0.00
+
+Recv_init          166   10      1  0.00915  0.00915  0.00915   0.01   0.03
+Recv_init          166    *      1  0.00915  0.00915  0.00915   0.00   0.00
+
+Recv_init          171   10      1  0.00922  0.00922  0.00922   0.01   0.03
+Recv_init          171    *      1  0.00922  0.00922  0.00922   0.00   0.00
+
+Recv_init          174   10      1  0.00909  0.00909  0.00909   0.01   0.03
+Recv_init          174    *      1  0.00909  0.00909  0.00909   0.00   0.00
+
+Recv_init          178   11      1   0.0199   0.0199   0.0199   0.01   0.07
+Recv_init          178    *      1   0.0199   0.0199   0.0199   0.00   0.00
+
+Recv_init          180   11      1  0.00912  0.00912  0.00912   0.01   0.03
+Recv_init          180    *      1  0.00912  0.00912  0.00912   0.00   0.00
+
+Recv_init          183   11      1  0.00927  0.00927  0.00927   0.01   0.03
+Recv_init          183    *      1  0.00927  0.00927  0.00927   0.00   0.00
+
+Recv_init          184   11      1   0.0106   0.0106   0.0106   0.01   0.04
+Recv_init          184    *      1   0.0106   0.0106   0.0106   0.00   0.00
+
+Recv_init          186   11      1  0.00937  0.00937  0.00937   0.01   0.03
+Recv_init          186    *      1  0.00937  0.00937  0.00937   0.00   0.00
+
+Recv_init          188   11      1  0.00926  0.00926  0.00926   0.01   0.03
+Recv_init          188    *      1  0.00926  0.00926  0.00926   0.00   0.00
+
+Recv_init          193   11      1  0.00929  0.00929  0.00929   0.01   0.03
+Recv_init          193    *      1  0.00929  0.00929  0.00929   0.00   0.00
+
+Recv_init          196   11      1   0.0101   0.0101   0.0101   0.01   0.03
+Recv_init          196    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          201   12      1   0.0236   0.0236   0.0236   0.01   0.08
+Recv_init          201    *      1   0.0236   0.0236   0.0236   0.00   0.00
+
+Recv_init          202   12      1   0.0101   0.0101   0.0101   0.01   0.03
+Recv_init          202    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          205   12      1  0.00925  0.00925  0.00925   0.01   0.03
+Recv_init          205    *      1  0.00925  0.00925  0.00925   0.00   0.00
+
+Recv_init          207   12      1   0.0101   0.0101   0.0101   0.01   0.03
+Recv_init          207    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          208   12      1  0.00963  0.00963  0.00963   0.01   0.03
+Recv_init          208    *      1  0.00963  0.00963  0.00963   0.00   0.00
+
+Recv_init          212   12      1  0.00945  0.00945  0.00945   0.01   0.03
+Recv_init          212    *      1  0.00945  0.00945  0.00945   0.00   0.00
+
+Recv_init          215   12      1  0.00934  0.00934  0.00934   0.01   0.03
+Recv_init          215    *      1  0.00934  0.00934  0.00934   0.00   0.00
+
+Recv_init          219   12      1  0.00924  0.00924  0.00924   0.01   0.03
+Recv_init          219    *      1  0.00924  0.00924  0.00924   0.00   0.00
+
+Recv_init          223    4      1   0.0222   0.0222   0.0222   0.01   0.06
+Recv_init          223    *      1   0.0222   0.0222   0.0222   0.00   0.00
+
+Recv_init          224    4      1  0.00901  0.00901  0.00901   0.01   0.02
+Recv_init          224    *      1  0.00901  0.00901  0.00901   0.00   0.00
+
+Recv_init          228    4      1   0.0101   0.0101   0.0101   0.01   0.03
+Recv_init          228    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          229    4      1  0.00909  0.00909  0.00909   0.01   0.02
+Recv_init          229    *      1  0.00909  0.00909  0.00909   0.00   0.00
+
+Recv_init          230    4      1  0.00915  0.00915  0.00915   0.01   0.02
+Recv_init          230    *      1  0.00915  0.00915  0.00915   0.00   0.00
+
+Recv_init          236    4      1  0.00915  0.00915  0.00915   0.01   0.02
+Recv_init          236    *      1  0.00915  0.00915  0.00915   0.00   0.00
+
+Recv_init          237    4      1  0.00905  0.00905  0.00905   0.01   0.02
+Recv_init          237    *      1  0.00905  0.00905  0.00905   0.00   0.00
+
+Recv_init          241    4      1  0.00912  0.00912  0.00912   0.01   0.02
+Recv_init          241    *      1  0.00912  0.00912  0.00912   0.00   0.00
+
+Recv_init          245   15      1     0.02     0.02     0.02   0.01   0.08
+Recv_init          245    *      1     0.02     0.02     0.02   0.00   0.00
+
+Recv_init          246   15      1  0.00989  0.00989  0.00989   0.01   0.04
+Recv_init          246    *      1  0.00989  0.00989  0.00989   0.00   0.00
+
+Recv_init          249   15      1  0.00915  0.00915  0.00915   0.01   0.04
+Recv_init          249    *      1  0.00915  0.00915  0.00915   0.00   0.00
+
+Recv_init          250   15      1  0.00941  0.00941  0.00941   0.01   0.04
+Recv_init          250    *      1  0.00941  0.00941  0.00941   0.00   0.00
+
+Recv_init          252   15      1  0.00944  0.00944  0.00944   0.01   0.04
+Recv_init          252    *      1  0.00944  0.00944  0.00944   0.00   0.00
+
+Recv_init          254   15      1  0.00916  0.00916  0.00916   0.01   0.04
+Recv_init          254    *      1  0.00916  0.00916  0.00916   0.00   0.00
+
+Recv_init          259   15      1  0.00904  0.00904  0.00904   0.01   0.04
+Recv_init          259    *      1  0.00904  0.00904  0.00904   0.00   0.00
+
+Recv_init          263   15      1  0.00941  0.00941  0.00941   0.01   0.04
+Recv_init          263    *      1  0.00941  0.00941  0.00941   0.00   0.00
+
+Recv_init          267   14      1   0.0296   0.0296   0.0296   0.02   0.11
+Recv_init          267    *      1   0.0296   0.0296   0.0296   0.00   0.01
+
+Recv_init          268   14      1     0.01     0.01     0.01   0.01   0.04
+Recv_init          268    *      1     0.01     0.01     0.01   0.00   0.00
+
+Recv_init          271   14      1   0.0103   0.0103   0.0103   0.01   0.04
+Recv_init          271    *      1   0.0103   0.0103   0.0103   0.00   0.00
+
+Recv_init          272   14      1   0.0111   0.0111   0.0111   0.01   0.04
+Recv_init          272    *      1   0.0111   0.0111   0.0111   0.00   0.00
+
+Recv_init          274   14      1   0.0101   0.0101   0.0101   0.01   0.04
+Recv_init          274    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          276   14      1   0.0101   0.0101   0.0101   0.01   0.04
+Recv_init          276    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          281   14      1  0.00958  0.00958  0.00958   0.01   0.04
+Recv_init          281    *      1  0.00958  0.00958  0.00958   0.00   0.00
+
+Recv_init          285   14      1  0.00941  0.00941  0.00941   0.01   0.04
+Recv_init          285    *      1  0.00941  0.00941  0.00941   0.00   0.00
+
+Recv_init          288    9      1   0.0204   0.0204   0.0204   0.01   0.06
+Recv_init          288    *      1   0.0204   0.0204   0.0204   0.00   0.00
+
+Recv_init          290    9      1  0.00931  0.00931  0.00931   0.01   0.03
+Recv_init          290    *      1  0.00931  0.00931  0.00931   0.00   0.00
+
+Recv_init          293    9      1  0.00917  0.00917  0.00917   0.01   0.03
+Recv_init          293    *      1  0.00917  0.00917  0.00917   0.00   0.00
+
+Recv_init          295    9      1  0.00954  0.00954  0.00954   0.01   0.03
+Recv_init          295    *      1  0.00954  0.00954  0.00954   0.00   0.00
+
+Recv_init          296    9      1   0.0094   0.0094   0.0094   0.01   0.03
+Recv_init          296    *      1   0.0094   0.0094   0.0094   0.00   0.00
+
+Recv_init          300    9      1  0.00924  0.00924  0.00924   0.01   0.03
+Recv_init          300    *      1  0.00924  0.00924  0.00924   0.00   0.00
+
+Recv_init          303    9      1  0.00934  0.00934  0.00934   0.01   0.03
+Recv_init          303    *      1  0.00934  0.00934  0.00934   0.00   0.00
+
+Recv_init          306    9      1  0.00997  0.00997  0.00997   0.01   0.03
+Recv_init          306    *      1  0.00997  0.00997  0.00997   0.00   0.00
+
+Recv_init          311    5      1   0.0203   0.0203   0.0203   0.01   0.05
+Recv_init          311    *      1   0.0203   0.0203   0.0203   0.00   0.00
+
+Recv_init          312    5      1  0.00926  0.00926  0.00926   0.01   0.02
+Recv_init          312    *      1  0.00926  0.00926  0.00926   0.00   0.00
+
+Recv_init          316    5      1   0.0106   0.0106   0.0106   0.01   0.03
+Recv_init          316    *      1   0.0106   0.0106   0.0106   0.00   0.00
+
+Recv_init          317    5      1  0.00904  0.00904  0.00904   0.01   0.02
+Recv_init          317    *      1  0.00904  0.00904  0.00904   0.00   0.00
+
+Recv_init          318    5      1  0.00994  0.00994  0.00994   0.01   0.03
+Recv_init          318    *      1  0.00994  0.00994  0.00994   0.00   0.00
+
+Recv_init          324    5      1  0.00926  0.00926  0.00926   0.01   0.02
+Recv_init          324    *      1  0.00926  0.00926  0.00926   0.00   0.00
+
+Recv_init          325    5      1  0.00925  0.00925  0.00925   0.01   0.02
+Recv_init          325    *      1  0.00925  0.00925  0.00925   0.00   0.00
+
+Recv_init          329    5      1  0.00954  0.00954  0.00954   0.01   0.03
+Recv_init          329    *      1  0.00954  0.00954  0.00954   0.00   0.00
+
+Recv_init          333    6      1   0.0219   0.0219   0.0219   0.01   0.06
+Recv_init          333    *      1   0.0219   0.0219   0.0219   0.00   0.00
+
+Recv_init          334    6      1  0.00911  0.00911  0.00911   0.01   0.03
+Recv_init          334    *      1  0.00911  0.00911  0.00911   0.00   0.00
+
+Recv_init          337    6      1   0.0101   0.0101   0.0101   0.01   0.03
+Recv_init          337    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Recv_init          339    6      1  0.00901  0.00901  0.00901   0.01   0.03
+Recv_init          339    *      1  0.00901  0.00901  0.00901   0.00   0.00
+
+Recv_init          340    6      1  0.00919  0.00919  0.00919   0.01   0.03
+Recv_init          340    *      1  0.00919  0.00919  0.00919   0.00   0.00
+
+Recv_init          344    6      1   0.0091   0.0091   0.0091   0.01   0.03
+Recv_init          344    *      1   0.0091   0.0091   0.0091   0.00   0.00
+
+Recv_init          347    6      1  0.00915  0.00915  0.00915   0.01   0.03
+Recv_init          347    *      1  0.00915  0.00915  0.00915   0.00   0.00
+
+Recv_init          351    6      1  0.00925  0.00925  0.00925   0.01   0.03
+Recv_init          351    *      1  0.00925  0.00925  0.00925   0.00   0.00
+
+Send_init            3    0      1  0.00966  0.00966  0.00966   0.01   0.03
+Send_init            3    *      1  0.00966  0.00966  0.00966   0.00   0.00
+
+Send_init            5    0      1  0.00945  0.00945  0.00945   0.01   0.03
+Send_init            5    *      1  0.00945  0.00945  0.00945   0.00   0.00
+
+Send_init            6    0      1  0.00906  0.00906  0.00906   0.01   0.03
+Send_init            6    *      1  0.00906  0.00906  0.00906   0.00   0.00
+
+Send_init           12    0      1  0.00988  0.00988  0.00988   0.01   0.03
+Send_init           12    *      1  0.00988  0.00988  0.00988   0.00   0.00
+
+Send_init           13    0      1   0.0119   0.0119   0.0119   0.01   0.03
+Send_init           13    *      1   0.0119   0.0119   0.0119   0.00   0.00
+
+Send_init           18    0      1   0.0093   0.0093   0.0093   0.01   0.03
+Send_init           18    *      1   0.0093   0.0093   0.0093   0.00   0.00
+
+Send_init           21    0      1  0.00894  0.00894  0.00894   0.01   0.02
+Send_init           21    *      1  0.00894  0.00894  0.00894   0.00   0.00
+
+Send_init           22    0      1   0.0254   0.0254   0.0254   0.02   0.07
+Send_init           22    *      1   0.0254   0.0254   0.0254   0.00   0.00
+
+Send_init           25    1      1   0.0202   0.0202   0.0202   0.01   0.06
+Send_init           25    *      1   0.0202   0.0202   0.0202   0.00   0.00
+
+Send_init           27    1      1  0.00964  0.00964  0.00964   0.01   0.03
+Send_init           27    *      1  0.00964  0.00964  0.00964   0.00   0.00
+
+Send_init           28    1      1   0.0101   0.0101   0.0101   0.01   0.03
+Send_init           28    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Send_init           34    1      1   0.0101   0.0101   0.0101   0.01   0.03
+Send_init           34    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Send_init           35    1      1  0.00927  0.00927  0.00927   0.01   0.03
+Send_init           35    *      1  0.00927  0.00927  0.00927   0.00   0.00
+
+Send_init           40    1      1  0.00935  0.00935  0.00935   0.01   0.03
+Send_init           40    *      1  0.00935  0.00935  0.00935   0.00   0.00
+
+Send_init           43    1      1   0.0093   0.0093   0.0093   0.01   0.03
+Send_init           43    *      1   0.0093   0.0093   0.0093   0.00   0.00
+
+Send_init           44    1      1   0.0223   0.0223   0.0223   0.01   0.06
+Send_init           44    *      1   0.0223   0.0223   0.0223   0.00   0.00
+
+Send_init           46    7      1   0.0128   0.0128   0.0128   0.01   0.04
+Send_init           46    *      1   0.0128   0.0128   0.0128   0.00   0.00
+
+Send_init           49    7      1  0.00983  0.00983  0.00983   0.01   0.03
+Send_init           49    *      1  0.00983  0.00983  0.00983   0.00   0.00
+
+Send_init           50    7      1  0.00946  0.00946  0.00946   0.01   0.03
+Send_init           50    *      1  0.00946  0.00946  0.00946   0.00   0.00
+
+Send_init           56    7      1   0.0121   0.0121   0.0121   0.01   0.04
+Send_init           56    *      1   0.0121   0.0121   0.0121   0.00   0.00
+
+Send_init           57    7      1     8.45     8.45     8.45   5.34  24.51
+Send_init           57    *      1     8.45     8.45     8.45   0.33   1.58
+
+Send_init           62    7      1  0.00935  0.00935  0.00935   0.01   0.03
+Send_init           62    *      1  0.00935  0.00935  0.00935   0.00   0.00
+
+Send_init           64    7      1   0.0118   0.0118   0.0118   0.01   0.03
+Send_init           64    *      1   0.0118   0.0118   0.0118   0.00   0.00
+
+Send_init           66    7      1   0.0307   0.0307   0.0307   0.02   0.09
+Send_init           66    *      1   0.0307   0.0307   0.0307   0.00   0.01
+
+Send_init           69    8      1   0.0117   0.0117   0.0117   0.01   0.03
+Send_init           69    *      1   0.0117   0.0117   0.0117   0.00   0.00
+
+Send_init           71    8      1  0.00931  0.00931  0.00931   0.01   0.03
+Send_init           71    *      1  0.00931  0.00931  0.00931   0.00   0.00
+
+Send_init           72    8      1   0.0219   0.0219   0.0219   0.01   0.06
+Send_init           72    *      1   0.0219   0.0219   0.0219   0.00   0.00
+
+Send_init           81    8      1   0.0102   0.0102   0.0102   0.01   0.03
+Send_init           81    *      1   0.0102   0.0102   0.0102   0.00   0.00
+
+Send_init           82    8      1   0.0137   0.0137   0.0137   0.01   0.04
+Send_init           82    *      1   0.0137   0.0137   0.0137   0.00   0.00
+
+Send_init           85    8      1  0.00922  0.00922  0.00922   0.01   0.03
+Send_init           85    *      1  0.00922  0.00922  0.00922   0.00   0.00
+
+Send_init           87    8      1  0.00995  0.00995  0.00995   0.01   0.03
+Send_init           87    *      1  0.00995  0.00995  0.00995   0.00   0.00
+
+Send_init           88    8      1      8.8      8.8      8.8   5.48  25.34
+Send_init           88    *      1      8.8      8.8      8.8   0.34   1.65
+
+Send_init           91    2      1   0.0217   0.0217   0.0217   0.01   0.06
+Send_init           91    *      1   0.0217   0.0217   0.0217   0.00   0.00
+
+Send_init           93    2      1  0.00964  0.00964  0.00964   0.01   0.03
+Send_init           93    *      1  0.00964  0.00964  0.00964   0.00   0.00
+
+Send_init           94    2      1  0.00979  0.00979  0.00979   0.01   0.03
+Send_init           94    *      1  0.00979  0.00979  0.00979   0.00   0.00
+
+Send_init          100    2      1  0.00904  0.00904  0.00904   0.01   0.02
+Send_init          100    *      1  0.00904  0.00904  0.00904   0.00   0.00
+
+Send_init          101    2      1  0.00977  0.00977  0.00977   0.01   0.03
+Send_init          101    *      1  0.00977  0.00977  0.00977   0.00   0.00
+
+Send_init          106    2      1  0.00907  0.00907  0.00907   0.01   0.02
+Send_init          106    *      1  0.00907  0.00907  0.00907   0.00   0.00
+
+Send_init          109    2      1  0.00897  0.00897  0.00897   0.01   0.02
+Send_init          109    *      1  0.00897  0.00897  0.00897   0.00   0.00
+
+Send_init          110    2      1   0.0257   0.0257   0.0257   0.02   0.07
+Send_init          110    *      1   0.0257   0.0257   0.0257   0.00   0.00
+
+Send_init          113    3      1   0.0216   0.0216   0.0216   0.01   0.06
+Send_init          113    *      1   0.0216   0.0216   0.0216   0.00   0.00
+
+Send_init          115    3      1  0.00938  0.00938  0.00938   0.01   0.03
+Send_init          115    *      1  0.00938  0.00938  0.00938   0.00   0.00
+
+Send_init          116    3      1     0.01     0.01     0.01   0.01   0.03
+Send_init          116    *      1     0.01     0.01     0.01   0.00   0.00
+
+Send_init          122    3      1  0.00912  0.00912  0.00912   0.01   0.03
+Send_init          122    *      1  0.00912  0.00912  0.00912   0.00   0.00
+
+Send_init          123    3      1  0.00961  0.00961  0.00961   0.01   0.03
+Send_init          123    *      1  0.00961  0.00961  0.00961   0.00   0.00
+
+Send_init          128    3      1    0.009    0.009    0.009   0.01   0.03
+Send_init          128    *      1    0.009    0.009    0.009   0.00   0.00
+
+Send_init          131    3      1  0.00909  0.00909  0.00909   0.01   0.03
+Send_init          131    *      1  0.00909  0.00909  0.00909   0.00   0.00
+
+Send_init          132    3      1    0.023    0.023    0.023   0.01   0.07
+Send_init          132    *      1    0.023    0.023    0.023   0.00   0.00
+
+Send_init          134   13      1   0.0144   0.0144   0.0144   0.01   0.05
+Send_init          134    *      1   0.0144   0.0144   0.0144   0.00   0.00
+
+Send_init          137   13      1  0.00939  0.00939  0.00939   0.01   0.03
+Send_init          137    *      1  0.00939  0.00939  0.00939   0.00   0.00
+
+Send_init          138   13      1   0.0106   0.0106   0.0106   0.01   0.03
+Send_init          138    *      1   0.0106   0.0106   0.0106   0.00   0.00
+
+Send_init          147   13      1    0.011    0.011    0.011   0.01   0.03
+Send_init          147    *      1    0.011    0.011    0.011   0.00   0.00
+
+Send_init          148   13      1  0.00952  0.00952  0.00952   0.01   0.03
+Send_init          148    *      1  0.00952  0.00952  0.00952   0.00   0.00
+
+Send_init          151   13      1  0.00945  0.00945  0.00945   0.01   0.03
+Send_init          151    *      1  0.00945  0.00945  0.00945   0.00   0.00
+
+Send_init          152   13      1  0.00941  0.00941  0.00941   0.01   0.03
+Send_init          152    *      1  0.00941  0.00941  0.00941   0.00   0.00
+
+Send_init          154   13      1   0.0235   0.0235   0.0235   0.01   0.07
+Send_init          154    *      1   0.0235   0.0235   0.0235   0.00   0.00
+
+Send_init          157   10      1   0.0206   0.0206   0.0206   0.01   0.06
+Send_init          157    *      1   0.0206   0.0206   0.0206   0.00   0.00
+
+Send_init          159   10      1  0.00999  0.00999  0.00999   0.01   0.03
+Send_init          159    *      1  0.00999  0.00999  0.00999   0.00   0.00
+
+Send_init          160   10      1   0.0113   0.0113   0.0113   0.01   0.03
+Send_init          160    *      1   0.0113   0.0113   0.0113   0.00   0.00
+
+Send_init          169   10      1  0.00913  0.00913  0.00913   0.01   0.03
+Send_init          169    *      1  0.00913  0.00913  0.00913   0.00   0.00
+
+Send_init          170   10      1  0.00927  0.00927  0.00927   0.01   0.03
+Send_init          170    *      1  0.00927  0.00927  0.00927   0.00   0.00
+
+Send_init          173   10      1  0.00911  0.00911  0.00911   0.01   0.03
+Send_init          173    *      1  0.00911  0.00911  0.00911   0.00   0.00
+
+Send_init          175   10      1  0.00922  0.00922  0.00922   0.01   0.03
+Send_init          175    *      1  0.00922  0.00922  0.00922   0.00   0.00
+
+Send_init          176   10      1     8.66     8.66     8.66   5.39  25.83
+Send_init          176    *      1     8.66     8.66     8.66   0.34   1.62
+
+Send_init          179   11      1   0.0128   0.0128   0.0128   0.01   0.04
+Send_init          179    *      1   0.0128   0.0128   0.0128   0.00   0.00
+
+Send_init          181   11      1  0.00945  0.00945  0.00945   0.01   0.03
+Send_init          181    *      1  0.00945  0.00945  0.00945   0.00   0.00
+
+Send_init          182   11      1   0.0116   0.0116   0.0116   0.01   0.04
+Send_init          182    *      1   0.0116   0.0116   0.0116   0.00   0.00
+
+Send_init          191   11      1   0.0126   0.0126   0.0126   0.01   0.04
+Send_init          191    *      1   0.0126   0.0126   0.0126   0.00   0.00
+
+Send_init          192   11      1  0.00942  0.00942  0.00942   0.01   0.03
+Send_init          192    *      1  0.00942  0.00942  0.00942   0.00   0.00
+
+Send_init          195   11      1  0.00934  0.00934  0.00934   0.01   0.03
+Send_init          195    *      1  0.00934  0.00934  0.00934   0.00   0.00
+
+Send_init          197   11      1   0.0153   0.0153   0.0153   0.01   0.05
+Send_init          197    *      1   0.0153   0.0153   0.0153   0.00   0.00
+
+Send_init          198   11      1     8.36     8.36     8.36   5.28  27.79
+Send_init          198    *      1     8.36     8.36     8.36   0.33   1.57
+
+Send_init          200   12      1   0.0096   0.0096   0.0096   0.01   0.03
+Send_init          200    *      1   0.0096   0.0096   0.0096   0.00   0.00
+
+Send_init          203   12      1  0.00936  0.00936  0.00936   0.01   0.03
+Send_init          203    *      1  0.00936  0.00936  0.00936   0.00   0.00
+
+Send_init          204   12      1   0.0101   0.0101   0.0101   0.01   0.03
+Send_init          204    *      1   0.0101   0.0101   0.0101   0.00   0.00
+
+Send_init          213   12      1   0.0127   0.0127   0.0127   0.01   0.04
+Send_init          213    *      1   0.0127   0.0127   0.0127   0.00   0.00
+
+Send_init          214   12      1   0.0239   0.0239   0.0239   0.01   0.08
+Send_init          214    *      1   0.0239   0.0239   0.0239   0.00   0.00
+
+Send_init          217   12      1   0.0107   0.0107   0.0107   0.01   0.04
+Send_init          217    *      1   0.0107   0.0107   0.0107   0.00   0.00
+
+Send_init          218   12      1   0.0096   0.0096   0.0096   0.01   0.03
+Send_init          218    *      1   0.0096   0.0096   0.0096   0.00   0.00
+
+Send_init          220   12      1   0.0265   0.0265   0.0265   0.02   0.09
+Send_init          220    *      1   0.0265   0.0265   0.0265   0.00   0.00
+
+Send_init          222    4      1   0.0122   0.0122   0.0122   0.01   0.03
+Send_init          222    *      1   0.0122   0.0122   0.0122   0.00   0.00
+
+Send_init          225    4      1  0.00956  0.00956  0.00956   0.01   0.03
+Send_init          225    *      1  0.00956  0.00956  0.00956   0.00   0.00
+
+Send_init          226    4      1  0.00937  0.00937  0.00937   0.01   0.03
+Send_init          226    *      1  0.00937  0.00937  0.00937   0.00   0.00
+
+Send_init          232    4      1     8.56     8.56     8.56   5.32  23.37
+Send_init          232    *      1     8.56     8.56     8.56   0.33   1.60
+
+Send_init          233    4      1   0.0142   0.0142   0.0142   0.01   0.04
+Send_init          233    *      1   0.0142   0.0142   0.0142   0.00   0.00
+
+Send_init          238    4      1  0.00926  0.00926  0.00926   0.01   0.03
+Send_init          238    *      1  0.00926  0.00926  0.00926   0.00   0.00
+
+Send_init          240    4      1   0.0114   0.0114   0.0114   0.01   0.03
+Send_init          240    *      1   0.0114   0.0114   0.0114   0.00   0.00
+
+Send_init          242    4      1   0.0427   0.0427   0.0427   0.03   0.12
+Send_init          242    *      1   0.0427   0.0427   0.0427   0.00   0.01
+
+Send_init          244   15      1   0.0132   0.0132   0.0132   0.01   0.05
+Send_init          244    *      1   0.0132   0.0132   0.0132   0.00   0.00
+
+Send_init          247   15      1  0.00914  0.00914  0.00914   0.01   0.04
+Send_init          247    *      1  0.00914  0.00914  0.00914   0.00   0.00
+
+Send_init          248   15      1  0.00955  0.00955  0.00955   0.01   0.04
+Send_init          248    *      1  0.00955  0.00955  0.00955   0.00   0.00
+
+Send_init          257   15      1  0.00905  0.00905  0.00905   0.01   0.04
+Send_init          257    *      1  0.00905  0.00905  0.00905   0.00   0.00
+
+Send_init          258   15      1   0.0125   0.0125   0.0125   0.01   0.05
+Send_init          258    *      1   0.0125   0.0125   0.0125   0.00   0.00
+
+Send_init          261   15      1  0.00909  0.00909  0.00909   0.01   0.04
+Send_init          261    *      1  0.00909  0.00909  0.00909   0.00   0.00
+
+Send_init          262   15      1  0.00922  0.00922  0.00922   0.01   0.04
+Send_init          262    *      1  0.00922  0.00922  0.00922   0.00   0.00
+
+Send_init          264   15      1   0.0321   0.0321   0.0321   0.02   0.13
+Send_init          264    *      1   0.0321   0.0321   0.0321   0.00   0.01
+
+Send_init          266   14      1   0.0419   0.0419   0.0419   0.03   0.16
+Send_init          266    *      1   0.0419   0.0419   0.0419   0.00   0.01
+
+Send_init          269   14      1   0.0111   0.0111   0.0111   0.01   0.04
+Send_init          269    *      1   0.0111   0.0111   0.0111   0.00   0.00
+
+Send_init          270   14      1  0.00992  0.00992  0.00992   0.01   0.04
+Send_init          270    *      1  0.00992  0.00992  0.00992   0.00   0.00
+
+Send_init          279   14      1  0.00959  0.00959  0.00959   0.01   0.04
+Send_init          279    *      1  0.00959  0.00959  0.00959   0.00   0.00
+
+Send_init          280   14      1   0.0165   0.0165   0.0165   0.01   0.06
+Send_init          280    *      1   0.0165   0.0165   0.0165   0.00   0.00
+
+Send_init          283   14      1  0.00962  0.00962  0.00962   0.01   0.04
+Send_init          283    *      1  0.00962  0.00962  0.00962   0.00   0.00
+
+Send_init          284   14      1  0.00977  0.00977  0.00977   0.01   0.04
+Send_init          284    *      1  0.00977  0.00977  0.00977   0.00   0.00
+
+Send_init          286   14      1    0.072    0.072    0.072   0.05   0.27
+Send_init          286    *      1    0.072    0.072    0.072   0.00   0.01
+
+Send_init          289    9      1   0.0184   0.0184   0.0184   0.01   0.05
+Send_init          289    *      1   0.0184   0.0184   0.0184   0.00   0.00
+
+Send_init          291    9      1   0.0105   0.0105   0.0105   0.01   0.03
+Send_init          291    *      1   0.0105   0.0105   0.0105   0.00   0.00
+
+Send_init          292    9      1   0.0118   0.0118   0.0118   0.01   0.03
+Send_init          292    *      1   0.0118   0.0118   0.0118   0.00   0.00
+
+Send_init          301    9      1  0.00939  0.00939  0.00939   0.01   0.03
+Send_init          301    *      1  0.00939  0.00939  0.00939   0.00   0.00
+
+Send_init          302    9      1  0.00949  0.00949  0.00949   0.01   0.03
+Send_init          302    *      1  0.00949  0.00949  0.00949   0.00   0.00
+
+Send_init          305    9      1  0.00937  0.00937  0.00937   0.01   0.03
+Send_init          305    *      1  0.00937  0.00937  0.00937   0.00   0.00
+
+Send_init          307    9      1  0.00938  0.00938  0.00938   0.01   0.03
+Send_init          307    *      1  0.00938  0.00938  0.00938   0.00   0.00
+
+Send_init          308    9      1     8.44     8.44     8.44   5.22  24.48
+Send_init          308    *      1     8.44     8.44     8.44   0.33   1.58
+
+Send_init          310    5      1   0.0135   0.0135   0.0135   0.01   0.04
+Send_init          310    *      1   0.0135   0.0135   0.0135   0.00   0.00
+
+Send_init          313    5      1  0.00954  0.00954  0.00954   0.01   0.03
+Send_init          313    *      1  0.00954  0.00954  0.00954   0.00   0.00
+
+Send_init          314    5      1  0.00935  0.00935  0.00935   0.01   0.02
+Send_init          314    *      1  0.00935  0.00935  0.00935   0.00   0.00
+
+Send_init          320    5      1     8.41     8.41     8.41   5.18  22.41
+Send_init          320    *      1     8.41     8.41     8.41   0.33   1.58
+
+Send_init          321    5      1  0.00905  0.00905  0.00905   0.01   0.02
+Send_init          321    *      1  0.00905  0.00905  0.00905   0.00   0.00
+
+Send_init          326    5      1  0.00906  0.00906  0.00906   0.01   0.02
+Send_init          326    *      1  0.00906  0.00906  0.00906   0.00   0.00
+
+Send_init          328    5      1   0.0121   0.0121   0.0121   0.01   0.03
+Send_init          328    *      1   0.0121   0.0121   0.0121   0.00   0.00
+
+Send_init          330    5      1   0.0261   0.0261   0.0261   0.02   0.07
+Send_init          330    *      1   0.0261   0.0261   0.0261   0.00   0.00
+
+Send_init          332    6      1   0.0141   0.0141   0.0141   0.01   0.04
+Send_init          332    *      1   0.0141   0.0141   0.0141   0.00   0.00
+
+Send_init          335    6      1  0.00965  0.00965  0.00965   0.01   0.03
+Send_init          335    *      1  0.00965  0.00965  0.00965   0.00   0.00
+
+Send_init          336    6      1  0.00931  0.00931  0.00931   0.01   0.03
+Send_init          336    *      1  0.00931  0.00931  0.00931   0.00   0.00
+
+Send_init          342    6      1  0.00901  0.00901  0.00901   0.01   0.03
+Send_init          342    *      1  0.00901  0.00901  0.00901   0.00   0.00
+
+Send_init          343    6      1      8.6      8.6      8.6   5.44  25.08
+Send_init          343    *      1      8.6      8.6      8.6   0.34   1.61
+
+Send_init          348    6      1  0.00908  0.00908  0.00908   0.01   0.03
+Send_init          348    *      1  0.00908  0.00908  0.00908   0.00   0.00
+
+Send_init          350    6      1   0.0116   0.0116   0.0116   0.01   0.03
+Send_init          350    *      1   0.0116   0.0116   0.0116   0.00   0.00
+
+Send_init          352    6      1   0.0247   0.0247   0.0247   0.02   0.07
+Send_init          352    *      1   0.0247   0.0247   0.0247   0.00   0.00
+
+Startall            11    0     49    0.101   0.0343   0.0218   1.04   4.66
+Startall            11    *     49    0.101   0.0343   0.0218   0.07   0.31
+
+Startall            15    0     49   0.0234  0.00765  0.00623   0.23   1.04
+Startall            15    *     49   0.0234  0.00765  0.00623   0.01   0.07
+
+Startall            33    1     49    0.126   0.0567   0.0285   1.72   7.63
+Startall            33    *     49    0.126   0.0567   0.0285   0.11   0.52
+
+Startall            36    1     49   0.0783   0.0114  0.00689   0.35   1.54
+Startall            36    *     49   0.0783   0.0114  0.00689   0.02   0.10
+
+Startall            55    7     49   0.0664    0.052   0.0371   1.61   7.40
+Startall            55    *     49   0.0664    0.052   0.0371   0.10   0.48
+
+Startall            59    7     49   0.0242  0.00793  0.00674   0.25   1.13
+Startall            59    *     49   0.0242  0.00793  0.00674   0.02   0.07
+
+Startall            77    8     49   0.0775   0.0566   0.0313   1.73   7.99
+Startall            77    *     49   0.0775   0.0566   0.0313   0.11   0.52
+
+Startall            79    8     49   0.0253  0.00836  0.00702   0.25   1.18
+Startall            79    *     49   0.0253  0.00836  0.00702   0.02   0.08
+
+Startall            99    2     49     0.17    0.055    0.021   1.68   7.31
+Startall            99    *     49     0.17    0.055    0.021   0.11   0.50
+
+Startall           104    2     49   0.0309  0.00971   0.0067   0.30   1.29
+Startall           104    *     49   0.0309  0.00971   0.0067   0.02   0.09
+
+Startall           121    3     49   0.0614   0.0431   0.0243   1.34   6.05
+Startall           121    *     49   0.0614   0.0431   0.0243   0.08   0.40
+
+Startall           125    3     49    0.105   0.0147  0.00662   0.46   2.07
+Startall           125    *     49    0.105   0.0147  0.00662   0.03   0.14
+
+Startall           143   13     49    0.166   0.0495   0.0273   1.49   7.60
+Startall           143    *     49    0.166   0.0495   0.0273   0.09   0.45
+
+Startall           144   13     49    0.068  0.00901  0.00684   0.27   1.38
+Startall           144    *     49    0.068  0.00901  0.00684   0.02   0.08
+
+Startall           165   10     49    0.196    0.068   0.0545   2.08   9.94
+Startall           165    *     49    0.196    0.068   0.0545   0.13   0.62
+
+Startall           168   10     49   0.0246  0.00809  0.00684   0.25   1.18
+Startall           168    *     49   0.0246  0.00809  0.00684   0.02   0.07
+
+Startall           187   11     49    0.101    0.058   0.0471   1.80   9.45
+Startall           187    *     49    0.101    0.058   0.0471   0.11   0.53
+
+Startall           189   11     49   0.0226  0.00797   0.0067   0.25   1.30
+Startall           189    *     49   0.0226  0.00797   0.0067   0.02   0.07
+
+Startall           209   12     49   0.0856   0.0404   0.0307   1.23   6.52
+Startall           209    *     49   0.0856   0.0404   0.0307   0.08   0.37
+
+Startall           211   12     49    0.026  0.00793  0.00673   0.24   1.28
+Startall           211    *     49    0.026  0.00793  0.00673   0.02   0.07
+
+Startall           231    4     49   0.0799   0.0569   0.0395   1.73   7.62
+Startall           231    *     49   0.0799   0.0569   0.0395   0.11   0.52
+
+Startall           235    4     49   0.0234  0.00889  0.00751   0.27   1.19
+Startall           235    *     49   0.0234  0.00889  0.00751   0.02   0.08
+
+Startall           253   15     49    0.121   0.0414   0.0329   1.28   8.08
+Startall           253    *     49    0.121   0.0414   0.0329   0.08   0.38
+
+Startall           255   15     49   0.0242  0.00735  0.00638   0.23   1.43
+Startall           255    *     49   0.0242  0.00735  0.00638   0.01   0.07
+
+Startall           275   14     49    0.355   0.0547   0.0345   1.70  10.17
+Startall           275    *     49    0.355   0.0547   0.0345   0.10   0.50
+
+Startall           278   14     49    0.149   0.0111  0.00693   0.34   2.06
+Startall           278    *     49    0.149   0.0111  0.00693   0.02   0.10
+
+Startall           297    9     49    0.175   0.0712   0.0488   2.16  10.12
+Startall           297    *     49    0.175   0.0712   0.0488   0.14   0.65
+
+Startall           298    9     49   0.0236   0.0079  0.00676   0.24   1.12
+Startall           298    *     49   0.0236   0.0079  0.00676   0.02   0.07
+
+Startall           319    5     49    0.272   0.0644   0.0401   1.95   8.41
+Startall           319    *     49    0.272   0.0644   0.0401   0.12   0.59
+
+Startall           322    5     49   0.0368   0.0135  0.00702   0.41   1.76
+Startall           322    *     49   0.0368   0.0135  0.00702   0.03   0.12
+
+Startall           341    6     49    0.127   0.0626   0.0379   1.94   8.94
+Startall           341    *     49    0.127   0.0626   0.0379   0.12   0.57
+
+Startall           346    6     49   0.0244  0.00802  0.00665   0.25   1.15
+Startall           346    *     49   0.0244  0.00802  0.00665   0.02   0.07
+
+Waitall              1    0     49    0.023  0.00703  0.00616   0.21   0.95
+Waitall              1    *     49    0.023  0.00703  0.00616   0.01   0.06
+
+Waitall             14    0     49      4.6    0.139    0.035   4.23  18.87
+Waitall             14    *     49      4.6    0.139    0.035   0.27   1.27
+
+Waitall             23    1     49    0.028  0.00904  0.00642   0.27   1.22
+Waitall             23    *     49    0.028  0.00904  0.00642   0.02   0.08
+
+Waitall             37    1     49     6.58    0.179   0.0363   5.42  24.02
+Waitall             37    *     49     6.58    0.179   0.0363   0.34   1.64
+
+Waitall             45    7     49   0.0119  0.00697  0.00653   0.22   0.99
+Waitall             45    *     49   0.0119  0.00697  0.00653   0.01   0.06
+
+Waitall             60    7     49    0.164   0.0706    0.049   2.19  10.03
+Waitall             60    *     49    0.164   0.0706    0.049   0.14   0.65
+
+Waitall             67    8     49   0.0342  0.00716  0.00632   0.22   1.01
+Waitall             67    *     49   0.0342  0.00716  0.00632   0.01   0.07
+
+Waitall             78    8     49    0.579   0.0827   0.0635   2.52  11.67
+Waitall             78    *     49    0.579   0.0827   0.0635   0.16   0.76
+
+Waitall             89    2     49   0.0346  0.00751  0.00616   0.23   1.00
+Waitall             89    *     49   0.0346  0.00751  0.00616   0.01   0.07
+
+Waitall            103    2     49     4.57     0.14   0.0371   4.27  18.62
+Waitall            103    *     49     4.57     0.14   0.0371   0.27   1.29
+
+Waitall            111    3     49   0.0255   0.0073   0.0062   0.23   1.03
+Waitall            111    *     49   0.0255   0.0073   0.0062   0.01   0.07
+
+Waitall            126    3     49     4.47    0.134   0.0333   4.16  18.86
+Waitall            126    *     49     4.47    0.134   0.0333   0.26   1.23
+
+Waitall            133   13     49   0.0114  0.00685  0.00656   0.21   1.05
+Waitall            133    *     49   0.0114  0.00685  0.00656   0.01   0.06
+
+Waitall            145   13     49     4.25    0.147   0.0488   4.45  22.64
+Waitall            145    *     49     4.25    0.147   0.0488   0.28   1.35
+
+Waitall            155   10     49   0.0114  0.00646  0.00616   0.20   0.94
+Waitall            155    *     49   0.0114  0.00646  0.00616   0.01   0.06
+
+Waitall            167   10     49     0.53   0.0945   0.0687   2.88  13.81
+Waitall            167    *     49     0.53   0.0945   0.0687   0.18   0.87
+
+Waitall            177   11     49   0.0109  0.00643  0.00621   0.20   1.05
+Waitall            177    *     49   0.0109  0.00643  0.00621   0.01   0.06
+
+Waitall            190   11     49    0.673   0.0939   0.0534   2.91  15.29
+Waitall            190    *     49    0.673   0.0939   0.0534   0.18   0.86
+
+Waitall            199   12     49   0.0109  0.00654  0.00615   0.20   1.06
+Waitall            199    *     49   0.0109  0.00654  0.00615   0.01   0.06
+
+Waitall            210   12     49     4.67     0.15    0.043   4.57  24.24
+Waitall            210    *     49     4.67     0.15    0.043   0.29   1.38
+
+Waitall            221    4     49   0.0116  0.00695  0.00662   0.21   0.93
+Waitall            221    *     49   0.0116  0.00695  0.00662   0.01   0.06
+
+Waitall            234    4     49    0.455   0.0791   0.0615   2.41  10.58
+Waitall            234    *     49    0.455   0.0791   0.0615   0.15   0.73
+
+Waitall            243   15     49   0.0112  0.00649  0.00616   0.20   1.26
+Waitall            243    *     49   0.0112  0.00649  0.00616   0.01   0.06
+
+Waitall            256   15     49     4.25    0.141   0.0441   4.38  27.58
+Waitall            256    *     49     4.25    0.141   0.0441   0.27   1.30
+
+Waitall            265   14     49   0.0123  0.00716  0.00636   0.22   1.33
+Waitall            265    *     49   0.0123  0.00716  0.00636   0.01   0.07
+
+Waitall            277   14     49        4     0.14   0.0504   4.34  26.02
+Waitall            277    *     49        4     0.14   0.0504   0.27   1.28
+
+Waitall            287    9     49   0.0143  0.00671  0.00619   0.20   0.95
+Waitall            287    *     49   0.0143  0.00671  0.00619   0.01   0.06
+
+Waitall            299    9     49    0.599   0.0868   0.0555   2.63  12.33
+Waitall            299    *     49    0.599   0.0868   0.0555   0.17   0.80
+
+Waitall            309    5     49   0.0254  0.00861  0.00628   0.26   1.12
+Waitall            309    *     49   0.0254  0.00861  0.00628   0.02   0.08
+
+Waitall            323    5     49    0.212   0.0683   0.0471   2.06   8.93
+Waitall            323    *     49    0.212   0.0683   0.0471   0.13   0.63
+
+Waitall            331    6     49   0.0112  0.00667  0.00626   0.21   0.95
+Waitall            331    *     49   0.0112  0.00667  0.00626   0.01   0.06
+
+Waitall            345    6     49    0.391   0.0801   0.0609   2.48  11.44
+Waitall            345    *     49    0.391   0.0801   0.0609   0.15   0.74
+---------------------------------------------------------------------------
+@--- Callsite Message Sent statistics (all, sent bytes) -------------------
+---------------------------------------------------------------------------
+Name              Site Rank   Count       Max      Mean       Min       Sum
+Allreduce            7    0       1         8         8         8         8
+Allreduce            7    *       1         8         8         8         8
+
+Allreduce           19    0      49         8         8         8       392
+Allreduce           19    *      49         8         8         8       392
+
+Allreduce           29    1       1         8         8         8         8
+Allreduce           29    *       1         8         8         8         8
+
+Allreduce           41    1      49         8         8         8       392
+Allreduce           41    *      49         8         8         8       392
+
+Allreduce           52    7       1         8         8         8         8
+Allreduce           52    *       1         8         8         8         8
+
+Allreduce           63    7      49         8         8         8       392
+Allreduce           63    *      49         8         8         8       392
+
+Allreduce           74    8       1         8         8         8         8
+Allreduce           74    *       1         8         8         8         8
+
+Allreduce           84    8      49         8         8         8       392
+Allreduce           84    *      49         8         8         8       392
+
+Allreduce           96    2       1         8         8         8         8
+Allreduce           96    *       1         8         8         8         8
+
+Allreduce          107    2      49         8         8         8       392
+Allreduce          107    *      49         8         8         8       392
+
+Allreduce          118    3       1         8         8         8         8
+Allreduce          118    *       1         8         8         8         8
+
+Allreduce          129    3      49         8         8         8       392
+Allreduce          129    *      49         8         8         8       392
+
+Allreduce          140   13       1         8         8         8         8
+Allreduce          140    *       1         8         8         8         8
+
+Allreduce          150   13      49         8         8         8       392
+Allreduce          150    *      49         8         8         8       392
+
+Allreduce          163   10       1         8         8         8         8
+Allreduce          163    *       1         8         8         8         8
+
+Allreduce          172   10      49         8         8         8       392
+Allreduce          172    *      49         8         8         8       392
+
+Allreduce          185   11       1         8         8         8         8
+Allreduce          185    *       1         8         8         8         8
+
+Allreduce          194   11      49         8         8         8       392
+Allreduce          194    *      49         8         8         8       392
+
+Allreduce          206   12       1         8         8         8         8
+Allreduce          206    *       1         8         8         8         8
+
+Allreduce          216   12      49         8         8         8       392
+Allreduce          216    *      49         8         8         8       392
+
+Allreduce          227    4       1         8         8         8         8
+Allreduce          227    *       1         8         8         8         8
+
+Allreduce          239    4      49         8         8         8       392
+Allreduce          239    *      49         8         8         8       392
+
+Allreduce          251   15       1         8         8         8         8
+Allreduce          251    *       1         8         8         8         8
+
+Allreduce          260   15      49         8         8         8       392
+Allreduce          260    *      49         8         8         8       392
+
+Allreduce          273   14       1         8         8         8         8
+Allreduce          273    *       1         8         8         8         8
+
+Allreduce          282   14      49         8         8         8       392
+Allreduce          282    *      49         8         8         8       392
+
+Allreduce          294    9       1         8         8         8         8
+Allreduce          294    *       1         8         8         8         8
+
+Allreduce          304    9      49         8         8         8       392
+Allreduce          304    *      49         8         8         8       392
+
+Allreduce          315    5       1         8         8         8         8
+Allreduce          315    *       1         8         8         8         8
+
+Allreduce          327    5      49         8         8         8       392
+Allreduce          327    *      49         8         8         8       392
+
+Allreduce          338    6       1         8         8         8         8
+Allreduce          338    *       1         8         8         8         8
+
+Allreduce          349    6      49         8         8         8       392
+Allreduce          349    *      49         8         8         8       392
+---------------------------------------------------------------------------
+@--- End of Report --------------------------------------------------------
+---------------------------------------------------------------------------

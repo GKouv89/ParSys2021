@@ -1,0 +1,12 @@
+mpiP: Found MPIP environment variable [-o]
+mpiP: 
+mpiP: mpiP V3.5.0 (Build Nov 11 2020/13:45:15)
+mpiP: 
+-> 3360, 3360, 0.8, 1, 1e-13, 50
+Iterations= 50 Elapsed MPI Wall time is 0.259067
+Time taken 0 seconds 257 milliseconds
+Residual 8.44983e-11
+The error of the iterative solution is 0.000158679
+mpiP: 
+mpiP: Storing mpiP output in [./jacobi_parallel.x.49.608789.1.mpiP].
+mpiP: 
