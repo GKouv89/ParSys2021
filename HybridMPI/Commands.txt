@@ -1,0 +1,2 @@
+mpicc -O3 -fopenmp jacobi_parallel_noConv.c -o jacobi_parallel.x -lm
+
