@@ -50,12 +50,18 @@ int main(int argc, char* argv[]){
   /* Cartesian Grid Creation */
 	int comm_size, my_world_rank, dim_size[2], periods[2];
 	MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
-	if(comm_size != 80){
+	// if(comm_size != 80){
+	// 	dim_size[1] = dim_size[0] = sqrt(comm_size);
+	// }else{
+  //       dim_size[0] = 8; // rows
+  //       dim_size[1] = 10; // columns
+  //   }
+  if(comm_size != 2){
 		dim_size[1] = dim_size[0] = sqrt(comm_size);
 	}else{
-        dim_size[0] = 8; // rows
-        dim_size[1] = 10; // columns
-    }
+      dim_size[0] = 1; // rows
+      dim_size[1] = 2; // columns
+  }
 	periods[0] = periods[1] = 0;
 	MPI_Comm new_comm;
 	MPI_Cart_create(MPI_COMM_WORLD, 2, dim_size, periods, 1, &new_comm);
@@ -105,24 +111,16 @@ int main(int argc, char* argv[]){
   double *tmp_local, *u_local, *u_old_local, *fXsquared, *fYsquared;
 
   MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
-  if(comm_size != 80){
+  if(comm_size != 2){
     double root /*, length*/;
     root = sqrt(comm_size);
     n_local = param.n/root;
     m_local = param.m/root;
     xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
     yBottom_local = yBottom +((double)coords[0])*m_local*param.deltaY;
-  }else{ // WIP: THIS WILL MOST LIKELY REQUIRE CHANGES
-    // n is the number of rows and m is the number of columns
-    // so m is the number of 'divisions' of the x axis and 
-    // n is the number of 'divisions' of the y axis.
-    // Professor says that the grid should be 8X10
-    // so the number of rows in the cartesian should be 8 and the number of
-    // columns in the cartesian grid should be 10.
-    // Therefore, n_local should be n_global divided by 8
-    // And m_local should be m_global divided by 10, respectively.
-    n_local = param.n/10; 
-    m_local = param.m/8; 
+  }else{ 
+    n_local = param.n/2; 
+    m_local = param.m; 
     xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
     yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
   }
