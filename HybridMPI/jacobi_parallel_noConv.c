@@ -160,7 +160,7 @@ int main(int argc, char* argv[]){
   /************************************************************/
   
   double maxAcceptableError = param.tol;
-  double error = 0.0;
+  double error = 15;
   int maxIterationCount = param.mits;
   int iterationCount = 0;
   
@@ -194,6 +194,7 @@ int main(int argc, char* argv[]){
 
   #pragma omp parallel 
   {
+    // printf("Thread %2d of rank %2d speaking: in parallel section\n", omp_get_thread_num(), my_world_rank);
     #pragma omp for 
     for (y = 1; y < (m_local+1); y++)
     {
@@ -249,10 +250,9 @@ int main(int argc, char* argv[]){
     } 
     #pragma omp barrier
 
-    while (iterationCount < maxIterationCount /* && error > maxAcceptableError */)
+    while (iterationCount < maxIterationCount && error > maxAcceptableError)
     {    	
       /* COMMUNICATION OF HALO POINTS */
-      error = 0.0;
       #pragma omp barrier
       #pragma omp master
       {
@@ -261,6 +261,7 @@ int main(int argc, char* argv[]){
       }
       #pragma omp barrier
 
+      error = 0.0;
       #pragma omp for reduction(+:error) collapse(2) /* schedule(static, chunksize) */
       for (y = 2; y < m_local; y++)
       {
@@ -337,10 +338,12 @@ int main(int argc, char* argv[]){
           DST(x,y) = SRC(x,y) - param.relax*updateVal;
           error += updateVal*updateVal;
       }
-
       #pragma omp barrier
       #pragma omp master
       {
+        MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
+        error = sqrt(error)/(param.n*param.m);
+
         iterationCount++;
         // Swap the buffers
         tmp_local = u_old_local;
@@ -362,19 +365,15 @@ int main(int argc, char* argv[]){
   }
   /* Iterate as long as it takes to meet the convergence criterion */
 
-  double residual;
-  MPI_Reduce(&error, &residual, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-
   MPI_Pcontrol(0);
   t2 = MPI_Wtime();
   diff = clock() - start;
   int msec = diff * 1000 / CLOCKS_PER_SEC;
   
   if(my_world_rank == 0){
-    residual = sqrt(residual)/(param.n*param.m);
     printf( "Iterations=%3d Elapsed MPI Wall time is %f\n", iterationCount, t2 - t1 ); 
     printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
-    printf("Residual %g\n", residual);
+    printf("Residual %g\n", error);
   }
   
   /* Cleaning up custom datatypes */
