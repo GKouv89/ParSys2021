@@ -194,104 +194,69 @@ int main(int argc, char* argv[]){
 
   #pragma omp parallel 
   {
-    // printf("Thread %2d of rank %2d speaking: in parallel section\n", omp_get_thread_num(), my_world_rank);
-    #pragma omp for 
+    #pragma omp for private(fY) 
     for (y = 1; y < (m_local+1); y++)
     {
         fY = yBottom_local + (y-1)*param.deltaY;
         fYsquared[y-1] = fY*fY;
     }
-    #pragma omp for 
+    #pragma omp for private(fX)
     for (x = 1; x < (n_local+1); x++)
     {
         fX = xLeft_local + (x-1)*param.deltaX;
         fXsquared[x-1] = fX*fX;
     }
-    #pragma omp barrier
-    #pragma omp master
+
+  }
+
+  // We send our second northest row to our north neighbor
+  // so row 1, column 1 is our starting point
+  MPI_Send_init(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests_current[0]);
+  MPI_Send_init(&(DST(1,1)), 1, row_type, north, 0, new_comm, &send_requests_former[0]);
+  
+  // We send our second southest row to our south neighbor
+  // so row n_local, column 1 is our starting point
+  MPI_Send_init(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_current[1]);
+  MPI_Send_init(&(DST(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_former[1]);
+    
+  // We send our second easternmost row to our east neighbor
+  // so row 1, column 1 is our starting point
+  MPI_Send_init(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests_current[2]);
+  MPI_Send_init(&(DST(1,1)), 1, column_type, west, 0, new_comm, &send_requests_former[2]);
+    
+  // We send our second westernmost row to our south neighbor
+  // so row 1, column m_local is our starting point
+  MPI_Send_init(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_current[3]);
+  MPI_Send_init(&(DST(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_former[3]);
+
+  // We receive from our north neighbor its southmost row, 
+  // and we store that in our northermost one, so row 0, column 1 is our starting point
+  MPI_Recv_init(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_current[0]); 
+  MPI_Recv_init(&(DST(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_former[0]); 
+  // We receive from our south neighbor its northermost row, 
+  // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
+  MPI_Recv_init(&(SRC(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_current[1]); 
+  MPI_Recv_init(&(DST(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_former[1]); 
+  // We receive from our east neighbor its westernmost column, 
+  // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
+  MPI_Recv_init(&(SRC(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_current[2]); 
+  MPI_Recv_init(&(DST(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_former[2]); 
+  // We receive from our west neighbor its easternnmost column, 
+  // and we store that in our westernmost one, so row 1, column 0 is our starting point
+  MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
+  MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
+
+  while (iterationCount < maxIterationCount && error > maxAcceptableError)
+  {    	
+    /* COMMUNICATION OF HALO POINTS */
+    MPI_Startall(4, receive_requests_current);
+    MPI_Startall(4, send_requests_current);
+    
+    error = 0.0;
+
+    for (y = 2; y < m_local; y++)
     {
-      // We send our second northest row to our north neighbor
-      // so row 1, column 1 is our starting point
-      MPI_Send_init(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests_current[0]);
-      MPI_Send_init(&(DST(1,1)), 1, row_type, north, 0, new_comm, &send_requests_former[0]);
-      
-      // We send our second southest row to our south neighbor
-      // so row n_local, column 1 is our starting point
-      MPI_Send_init(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_current[1]);
-      MPI_Send_init(&(DST(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_former[1]);
-        
-      // We send our second easternmost row to our east neighbor
-      // so row 1, column 1 is our starting point
-      MPI_Send_init(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests_current[2]);
-      MPI_Send_init(&(DST(1,1)), 1, column_type, west, 0, new_comm, &send_requests_former[2]);
-        
-      // We send our second westernmost row to our south neighbor
-      // so row 1, column m_local is our starting point
-      MPI_Send_init(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_current[3]);
-      MPI_Send_init(&(DST(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_former[3]);
-
-      // We receive from our north neighbor its southmost row, 
-      // and we store that in our northermost one, so row 0, column 1 is our starting point
-      MPI_Recv_init(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_current[0]); 
-      MPI_Recv_init(&(DST(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_former[0]); 
-      // We receive from our south neighbor its northermost row, 
-      // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
-      MPI_Recv_init(&(SRC(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_current[1]); 
-      MPI_Recv_init(&(DST(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_former[1]); 
-      // We receive from our east neighbor its westernmost column, 
-      // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
-      MPI_Recv_init(&(SRC(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_current[2]); 
-      MPI_Recv_init(&(DST(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_former[2]); 
-      // We receive from our west neighbor its easternnmost column, 
-      // and we store that in our westernmost one, so row 1, column 0 is our starting point
-      MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
-      MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
-
-    } 
-    #pragma omp barrier
-
-    while (iterationCount < maxIterationCount && error > maxAcceptableError)
-    {    	
-      /* COMMUNICATION OF HALO POINTS */
-      #pragma omp barrier
-      #pragma omp master
-      {
-        MPI_Startall(4, receive_requests_current);
-        MPI_Startall(4, send_requests_current);
-      }
-      #pragma omp barrier
-
-      error = 0.0;
-      #pragma omp for reduction(+:error) collapse(2) /* schedule(static, chunksize) */
-      for (y = 2; y < m_local; y++)
-      {
-        for (x = 2; x < n_local; x++)
-        {
-            f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
-            updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
-                            (SRC(x,y-1) + SRC(x,y+1))*cy +
-                            SRC(x,y)*cc - f
-                        )/cc;
-            DST(x,y) = SRC(x,y) - param.relax*updateVal;
-            error += updateVal*updateVal;
-        }
-      }
-
-      #pragma omp barrier
-      #pragma omp master
-      {
-        MPI_Waitall(4, receive_requests_current, MPI_STATUSES_IGNORE);
-      }
-      #pragma omp barrier
-
-      // Columns and rows that need halo 
-
-      // Halo is:
-        // x: 2nd and second-to-last (number 1 & n_local)
-        // y: 2nd and second-to-last (number 1 & m_local)
-      y = 1;
-      #pragma omp for reduction(+:error) /* schedule(static, chunksize) */
-      for (x = 1; x < n_local + 1; x++)
+      for (x = 2; x < n_local; x++)
       {
           f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
           updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
@@ -301,23 +266,18 @@ int main(int argc, char* argv[]){
           DST(x,y) = SRC(x,y) - param.relax*updateVal;
           error += updateVal*updateVal;
       }
-      y = m_local;
-      #pragma omp for reduction(+:error) /* schedule(static, chunksize) */
-      for (x = 1; x < n_local + 1; x++)
-      {
-          f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
-          updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
-                          (SRC(x,y-1) + SRC(x,y+1))*cy +
-                          SRC(x,y)*cc - f
-                      )/cc;
-          DST(x,y) = SRC(x,y) - param.relax*updateVal;
-          error += updateVal*updateVal;
-      }
-      x = 1;
-      y = 1;
-      #pragma omp for reduction(+:error) /* schedule(static, chunksize) */
-      for (y = 2; y < m_local; y++)
-      {
+    }
+
+    MPI_Waitall(4, receive_requests_current, MPI_STATUSES_IGNORE);
+
+    // Columns and rows that need halo 
+
+    // Halo is:
+      // x: 2nd and second-to-last (number 1 & n_local)
+      // y: 2nd and second-to-last (number 1 & m_local)
+    y = 1;
+    for (x = 1; x < n_local + 1; x++)
+    {
         f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
         updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
                         (SRC(x,y-1) + SRC(x,y+1))*cy +
@@ -325,43 +285,59 @@ int main(int argc, char* argv[]){
                     )/cc;
         DST(x,y) = SRC(x,y) - param.relax*updateVal;
         error += updateVal*updateVal;
-      }
-      x = n_local;
-      #pragma omp for reduction(+:error) /* schedule(static, chunksize) */
-      for (y = 2; y < m_local; y++)
-      {
-          f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
-          updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
-                          (SRC(x,y-1) + SRC(x,y+1))*cy +
-                          SRC(x,y)*cc - f
-                      )/cc;
-          DST(x,y) = SRC(x,y) - param.relax*updateVal;
-          error += updateVal*updateVal;
-      }
-      #pragma omp barrier
-      #pragma omp master
-      {
-        MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
-        error = sqrt(error)/(param.n*param.m);
-
-        iterationCount++;
-        // Swap the buffers
-        tmp_local = u_old_local;
-        u_old_local = u_local;
-        u_local = tmp_local;
-        MPI_Waitall(4, send_requests_current, MPI_STATUSES_IGNORE);
-
-        send_requests_temp = send_requests_former;
-        send_requests_former = send_requests_current;
-        send_requests_current = send_requests_temp;
-
-        receive_requests_temp = receive_requests_former;
-        receive_requests_former = receive_requests_current;
-        receive_requests_current = receive_requests_temp;
-      }
-      #pragma omp barrier
-      /********************************/
     }
+    y = m_local;
+    for (x = 1; x < n_local + 1; x++)
+    {
+        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                        (SRC(x,y-1) + SRC(x,y+1))*cy +
+                        SRC(x,y)*cc - f
+                    )/cc;
+        DST(x,y) = SRC(x,y) - param.relax*updateVal;
+        error += updateVal*updateVal;
+    }
+    x = 1;
+    y = 1;
+    for (y = 2; y < m_local; y++)
+    {
+      f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+      updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                      (SRC(x,y-1) + SRC(x,y+1))*cy +
+                      SRC(x,y)*cc - f
+                  )/cc;
+      DST(x,y) = SRC(x,y) - param.relax*updateVal;
+      error += updateVal*updateVal;
+    }
+    x = n_local;
+    for (y = 2; y < m_local; y++)
+    {
+        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                        (SRC(x,y-1) + SRC(x,y+1))*cy +
+                        SRC(x,y)*cc - f
+                    )/cc;
+        DST(x,y) = SRC(x,y) - param.relax*updateVal;
+        error += updateVal*updateVal;
+    }
+    MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
+    error = sqrt(error)/(param.n*param.m);
+
+    iterationCount++;
+    // Swap the buffers
+    tmp_local = u_old_local;
+    u_old_local = u_local;
+    u_local = tmp_local;
+    MPI_Waitall(4, send_requests_current, MPI_STATUSES_IGNORE);
+
+    send_requests_temp = send_requests_former;
+    send_requests_former = send_requests_current;
+    send_requests_current = send_requests_temp;
+
+    receive_requests_temp = receive_requests_former;
+    receive_requests_former = receive_requests_current;
+    receive_requests_current = receive_requests_temp;
+    /********************************/
   }
   /* Iterate as long as it takes to meet the convergence criterion */
 
