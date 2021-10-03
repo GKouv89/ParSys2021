@@ -192,23 +192,6 @@ int main(int argc, char* argv[]){
   t1 = MPI_Wtime(); 
   MPI_Pcontrol(1);
 
-  #pragma omp parallel 
-  {
-    #pragma omp for private(fY) 
-    for (y = 1; y < (m_local+1); y++)
-    {
-        fY = yBottom_local + (y-1)*param.deltaY;
-        fYsquared[y-1] = fY*fY;
-    }
-    #pragma omp for private(fX)
-    for (x = 1; x < (n_local+1); x++)
-    {
-        fX = xLeft_local + (x-1)*param.deltaX;
-        fXsquared[x-1] = fX*fX;
-    }
-
-  }
-
   // We send our second northest row to our north neighbor
   // so row 1, column 1 is our starting point
   MPI_Send_init(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests_current[0]);
@@ -246,17 +229,65 @@ int main(int argc, char* argv[]){
   MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
   MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
 
-  while (iterationCount < maxIterationCount && error > maxAcceptableError)
-  {    	
-    /* COMMUNICATION OF HALO POINTS */
-    MPI_Startall(4, receive_requests_current);
-    MPI_Startall(4, send_requests_current);
-    
-    error = 0.0;
-
-    for (y = 2; y < m_local; y++)
+  #pragma omp parallel 
+  {
+    #pragma omp for private(fY) 
+    for (y = 1; y < (m_local+1); y++)
     {
-      for (x = 2; x < n_local; x++)
+        fY = yBottom_local + (y-1)*param.deltaY;
+        fYsquared[y-1] = fY*fY;
+    }
+    #pragma omp for private(fX)
+    for (x = 1; x < (n_local+1); x++)
+    {
+        fX = xLeft_local + (x-1)*param.deltaX;
+        fXsquared[x-1] = fX*fX;
+    }
+
+    while (iterationCount < maxIterationCount && error > maxAcceptableError)
+    {    	
+      #pragma omp barrier
+      #pragma omp master
+      {
+        /* COMMUNICATION OF HALO POINTS */
+        MPI_Startall(4, receive_requests_current);
+        MPI_Startall(4, send_requests_current);
+        
+        error = 0.0;        
+      }
+      #pragma omp barrier
+  
+      #pragma omp for reduction(+:error) private(f, updateVal) collapse(2)
+      for (y = 2; y < m_local; y++)
+      {
+        for (x = 2; x < n_local; x++)
+        {
+            f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+            updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                            (SRC(x,y-1) + SRC(x,y+1))*cy +
+                            SRC(x,y)*cc - f
+                        )/cc;
+            DST(x,y) = SRC(x,y) - param.relax*updateVal;
+            error += updateVal*updateVal;
+        }
+      }
+
+      #pragma omp barrier
+      #pragma omp master
+      {
+        MPI_Waitall(4, receive_requests_current, MPI_STATUSES_IGNORE);
+      }
+      #pragma omp barrier
+
+      // Columns and rows that need halo 
+
+      // Halo is:
+        // x: 2nd and second-to-last (number 1 & n_local)
+        // y: 2nd and second-to-last (number 1 & m_local)
+      #pragma omp single
+      y = 1;
+      #pragma omp for reduction(+:error) private(f, updateVal)
+      for (x = 1; x < n_local + 1; x++)
       {
           f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
           updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
@@ -266,18 +297,24 @@ int main(int argc, char* argv[]){
           DST(x,y) = SRC(x,y) - param.relax*updateVal;
           error += updateVal*updateVal;
       }
-    }
-
-    MPI_Waitall(4, receive_requests_current, MPI_STATUSES_IGNORE);
-
-    // Columns and rows that need halo 
-
-    // Halo is:
-      // x: 2nd and second-to-last (number 1 & n_local)
-      // y: 2nd and second-to-last (number 1 & m_local)
-    y = 1;
-    for (x = 1; x < n_local + 1; x++)
-    {
+      #pragma omp single
+      y = m_local;      
+      #pragma omp for reduction(+:error) private(f, updateVal)
+      for (x = 1; x < n_local + 1; x++)
+      {
+          f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+          updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                          (SRC(x,y-1) + SRC(x,y+1))*cy +
+                          SRC(x,y)*cc - f
+                      )/cc;
+          DST(x,y) = SRC(x,y) - param.relax*updateVal;
+          error += updateVal*updateVal;
+      }
+      #pragma omp single
+      x = 1;
+      #pragma omp for reduction(+:error) private(f, updateVal)
+      for (y = 2; y < m_local; y++)
+      {
         f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
         updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
                         (SRC(x,y-1) + SRC(x,y+1))*cy +
@@ -285,60 +322,47 @@ int main(int argc, char* argv[]){
                     )/cc;
         DST(x,y) = SRC(x,y) - param.relax*updateVal;
         error += updateVal*updateVal;
-    }
-    y = m_local;
-    for (x = 1; x < n_local + 1; x++)
-    {
-        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
-        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
-                        (SRC(x,y-1) + SRC(x,y+1))*cy +
-                        SRC(x,y)*cc - f
-                    )/cc;
-        DST(x,y) = SRC(x,y) - param.relax*updateVal;
-        error += updateVal*updateVal;
-    }
-    x = 1;
-    y = 1;
-    for (y = 2; y < m_local; y++)
-    {
-      f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
-      updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
-                      (SRC(x,y-1) + SRC(x,y+1))*cy +
-                      SRC(x,y)*cc - f
-                  )/cc;
-      DST(x,y) = SRC(x,y) - param.relax*updateVal;
-      error += updateVal*updateVal;
-    }
-    x = n_local;
-    for (y = 2; y < m_local; y++)
-    {
-        f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
-        updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
-                        (SRC(x,y-1) + SRC(x,y+1))*cy +
-                        SRC(x,y)*cc - f
-                    )/cc;
-        DST(x,y) = SRC(x,y) - param.relax*updateVal;
-        error += updateVal*updateVal;
-    }
-    MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
-    error = sqrt(error)/(param.n*param.m);
+      }
+      #pragma omp single
+      x = n_local;
+      #pragma omp for reduction(+:error) private(f, updateVal)
+      for (y = 2; y < m_local; y++)
+      {
+          f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
+          updateVal = (	(SRC(x-1,y) + SRC(x+1,y))*cx +
+                          (SRC(x,y-1) + SRC(x,y+1))*cy +
+                          SRC(x,y)*cc - f
+                      )/cc;
+          DST(x,y) = SRC(x,y) - param.relax*updateVal;
+          error += updateVal*updateVal;
+      }
 
-    iterationCount++;
-    // Swap the buffers
-    tmp_local = u_old_local;
-    u_old_local = u_local;
-    u_local = tmp_local;
-    MPI_Waitall(4, send_requests_current, MPI_STATUSES_IGNORE);
+      #pragma omp barrier
+      #pragma omp master
+      {
+        MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
+        error = sqrt(error)/(param.n*param.m);
 
-    send_requests_temp = send_requests_former;
-    send_requests_former = send_requests_current;
-    send_requests_current = send_requests_temp;
+        iterationCount++;
+        // Swap the buffers
+        tmp_local = u_old_local;
+        u_old_local = u_local;
+        u_local = tmp_local;
+        MPI_Waitall(4, send_requests_current, MPI_STATUSES_IGNORE);
 
-    receive_requests_temp = receive_requests_former;
-    receive_requests_former = receive_requests_current;
-    receive_requests_current = receive_requests_temp;
-    /********************************/
+        send_requests_temp = send_requests_former;
+        send_requests_former = send_requests_current;
+        send_requests_current = send_requests_temp;
+
+        receive_requests_temp = receive_requests_former;
+        receive_requests_former = receive_requests_current;
+        receive_requests_current = receive_requests_temp;
+      }
+      #pragma omp barrier
+      /********************************/
+    }
   }
+
   /* Iterate as long as it takes to meet the convergence criterion */
 
   MPI_Pcontrol(0);
