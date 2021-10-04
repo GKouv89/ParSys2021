@@ -244,15 +244,19 @@ int main(int argc, char* argv[]){
   MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
   MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
 
+  int chunksize;
   #pragma omp parallel 
   {
+    #pragma omp single
+    chunksize = (m_local - 2)/omp_get_num_threads();
+
     #pragma omp for private(fY) 
     for (y = 1; y < (m_local+1); y++)
     {
         fY = yBottom_local + (y-1)*param.deltaY;
         fYsquared[y-1] = fY*fY;
     }
-    #pragma omp for private(fX)
+    #pragma omp for private(fX) 
     for (x = 1; x < (n_local+1); x++)
     {
         fX = xLeft_local + (x-1)*param.deltaX;
@@ -272,7 +276,7 @@ int main(int argc, char* argv[]){
       }
       #pragma omp barrier
   
-      #pragma omp for private(f, updateVal, x) reduction(+:error) /* collapse(2) */
+      #pragma omp for private(f, updateVal, x) reduction(+:error) schedule(static, chunksize)  /* collapse(2) */
       for (y = 2; y < m_local; y++)
       {      
         for (x = 2; x < n_local; x++)
