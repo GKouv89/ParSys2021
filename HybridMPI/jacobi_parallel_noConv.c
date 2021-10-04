@@ -272,9 +272,9 @@ int main(int argc, char* argv[]){
       }
       #pragma omp barrier
   
-      #pragma omp for reduction(+:error) private(f, updateVal) collapse(2)
+      #pragma omp for private(f, updateVal, x) reduction(+:error) /* collapse(2) */
       for (y = 2; y < m_local; y++)
-      {
+      {      
         for (x = 2; x < n_local; x++)
         {
             f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
@@ -286,6 +286,8 @@ int main(int argc, char* argv[]){
             error += updateVal*updateVal;
         }
       }
+      // #pragma omp atomic
+      //   error += partial_error;
 
       #pragma omp barrier
       #pragma omp master
