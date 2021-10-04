@@ -50,17 +50,23 @@ int main(int argc, char* argv[]){
   /* Cartesian Grid Creation */
 	int comm_size, my_world_rank, dim_size[2], periods[2];
 	MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
-	// if(comm_size != 80){
-	// 	dim_size[1] = dim_size[0] = sqrt(comm_size);
-	// }else{
-  //       dim_size[0] = 8; // rows
-  //       dim_size[1] = 10; // columns
-  //   }
-  if(comm_size != 2){
-		dim_size[1] = dim_size[0] = sqrt(comm_size);
-	}else{
+	int dimsA[2] = {0, 0};
+  MPI_Dims_create(comm_size, 2, dimsA);
+  // if(my_world_rank == 0){
+  //   printf("Dimensions by MPI_Dims_create for %d processes: (%d, %d).\n", comm_size, dimsA[0], dimsA[1]);
+  // }
+  switch(comm_size){
+    case 2:
       dim_size[0] = 1; // rows
       dim_size[1] = 2; // columns
+      break;
+    case 18:
+      dim_size[0] = dimsA[0];
+      dim_size[1] = dimsA[1];
+      break;
+    default:
+      dim_size[1] = dim_size[0] = sqrt(comm_size);
+      break;
   }
 	periods[0] = periods[1] = 0;
 	MPI_Comm new_comm;
@@ -109,20 +115,29 @@ int main(int argc, char* argv[]){
   double xLeft_local, xRight_local, yBottom_local, yUp_local;
   int n_local, m_local, coords[2];
   double *tmp_local, *u_local, *u_old_local, *fXsquared, *fYsquared;
+  double root /*, length*/;
 
   MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
-  if(comm_size != 2){
-    double root /*, length*/;
-    root = sqrt(comm_size);
-    n_local = param.n/root;
-    m_local = param.m/root;
-    xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
-    yBottom_local = yBottom +((double)coords[0])*m_local*param.deltaY;
-  }else{ 
-    n_local = param.n/2; 
-    m_local = param.m; 
-    xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
-    yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
+  switch(comm_size){
+    case 2:
+      n_local = param.n/2; 
+      m_local = param.m; 
+      xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
+      yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
+      break;
+    case 18:
+      n_local = param.n/dimsA[1]; 
+      m_local = param.m/dimsA[0]; 
+      xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
+      yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
+      break;
+    default:
+      root = sqrt(comm_size);
+      n_local = param.n/root;
+      m_local = param.m/root;
+      xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
+      yBottom_local = yBottom +((double)coords[0])*m_local*param.deltaY;
+      break;
   }
   u_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
   u_old_local = (double*)calloc((n_local + 2)*(m_local + 2), sizeof(double));
@@ -372,7 +387,7 @@ int main(int argc, char* argv[]){
   
   if(my_world_rank == 0){
     printf( "Iterations=%3d Elapsed MPI Wall time is %f\n", iterationCount, t2 - t1 ); 
-    printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
+    // printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
     printf("Residual %g\n", error);
   }
   
