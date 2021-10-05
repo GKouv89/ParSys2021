@@ -1,0 +1,5 @@
+-> 26880, 26880, 0.8, 1, 1e-13, 50
+comm_size = 1	dimsA[0] = 1	dimsA[1] = 1
+Iterations= 50 Elapsed MPI Wall time is 120.350592
+Residual 1.65078e-13
+The error of the iterative solution is 1.98405e-05

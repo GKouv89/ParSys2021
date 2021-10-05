@@ -56,16 +56,12 @@ int main(int argc, char* argv[]){
   //   printf("Dimensions by MPI_Dims_create for %d processes: (%d, %d).\n", comm_size, dimsA[0], dimsA[1]);
   // }
   switch(comm_size){
-    case 2:
-      dim_size[0] = 1; // rows
-      dim_size[1] = 2; // columns
-      break;
-    case 18:
-      dim_size[0] = dimsA[0];
-      dim_size[1] = dimsA[1];
+    case 4:
+      dim_size[1] = dim_size[0] = 2;
       break;
     default:
-      dim_size[1] = dim_size[0] = sqrt(comm_size);
+      dim_size[0] = dimsA[0];
+      dim_size[1] = dimsA[1];
       break;
   }
 	periods[0] = periods[1] = 0;
@@ -100,6 +96,7 @@ int main(int argc, char* argv[]){
     scanf("%d", &(param.mits));
 
     printf("-> %d, %d, %g, %g, %g, %d\n", param.n, param.m, param.alpha, param.relax, param.tol, param.mits);
+    printf("comm_size = %d\tdimsA[0] = %d\tdimsA[1] = %d\n", comm_size, dimsA[0], dimsA[1]);
   }
   param.deltaX = (2.0)/(param.n-1);
   param.deltaY = (2.0)/(param.m-1);
@@ -119,22 +116,15 @@ int main(int argc, char* argv[]){
 
   MPI_Cart_coords(new_comm, my_world_rank, 2, coords);
   switch(comm_size){
-    case 2:
-      n_local = param.n/2; 
-      m_local = param.m; 
-      xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
-      yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
-      break;
-    case 18:
+    default:
       n_local = param.n/dimsA[1]; 
       m_local = param.m/dimsA[0]; 
       xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
       yBottom_local = yBottom + ((double)coords[0])*m_local*param.deltaY; 
       break;
-    default:
-      root = sqrt(comm_size);
-      n_local = param.n/root;
-      m_local = param.m/root;
+    case 4:
+      n_local = param.n/2;
+      m_local = param.m/2;
       xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
       yBottom_local = yBottom +((double)coords[0])*m_local*param.deltaY;
       break;
