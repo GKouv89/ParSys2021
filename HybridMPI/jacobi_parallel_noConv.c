@@ -244,19 +244,15 @@ int main(int argc, char* argv[]){
   MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
   MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
 
-  int chunksize;
   #pragma omp parallel 
   {
-    #pragma omp single
-    chunksize = (m_local - 2)/omp_get_num_threads();
-
-    #pragma omp for private(fY) 
+    #pragma omp for private(fY) schedule(static)
     for (y = 1; y < (m_local+1); y++)
     {
         fY = yBottom_local + (y-1)*param.deltaY;
         fYsquared[y-1] = fY*fY;
     }
-    #pragma omp for private(fX) 
+    #pragma omp for private(fX) schedule(static)
     for (x = 1; x < (n_local+1); x++)
     {
         fX = xLeft_local + (x-1)*param.deltaX;
@@ -276,7 +272,7 @@ int main(int argc, char* argv[]){
       }
       #pragma omp barrier
   
-      #pragma omp for private(f, updateVal, x) reduction(+:error) schedule(static, chunksize)  /* collapse(2) */
+      #pragma omp for private(f, updateVal, x) reduction(+:error) schedule(static)  /* collapse(2) */
       for (y = 2; y < m_local; y++)
       {      
         for (x = 2; x < n_local; x++)
@@ -307,7 +303,7 @@ int main(int argc, char* argv[]){
         // y: 2nd and second-to-last (number 1 & m_local)
       #pragma omp single
       y = 1;
-      #pragma omp for reduction(+:error) private(f, updateVal)
+      #pragma omp for reduction(+:error) private(f, updateVal) schedule(static)
       for (x = 1; x < n_local + 1; x++)
       {
           f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
@@ -320,7 +316,7 @@ int main(int argc, char* argv[]){
       }
       #pragma omp single
       y = m_local;      
-      #pragma omp for reduction(+:error) private(f, updateVal)
+      #pragma omp for reduction(+:error) private(f, updateVal) schedule(static)
       for (x = 1; x < n_local + 1; x++)
       {
           f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
@@ -333,7 +329,7 @@ int main(int argc, char* argv[]){
       }
       #pragma omp single
       x = 1;
-      #pragma omp for reduction(+:error) private(f, updateVal)
+      #pragma omp for reduction(+:error) private(f, updateVal) schedule(static)
       for (y = 2; y < m_local; y++)
       {
         f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
@@ -346,7 +342,7 @@ int main(int argc, char* argv[]){
       }
       #pragma omp single
       x = n_local;
-      #pragma omp for reduction(+:error) private(f, updateVal)
+      #pragma omp for reduction(+:error) private(f, updateVal) schedule(static)
       for (y = 2; y < m_local; y++)
       {
           f = -param.alpha*(1.0-fXsquared[x-1])*(1.0-fYsquared[y-1]) - 2.0*(2.0-fXsquared[x-1]-fYsquared[y-1]);
