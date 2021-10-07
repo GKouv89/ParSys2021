@@ -13,6 +13,10 @@ typedef struct send{
     double alpha;
     double relax;
     double tol;
+    double delta;
+    double cx;
+    double cy;
+    double cc;
 }sendtype;
 
 #endif
