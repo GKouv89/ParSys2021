@@ -9,25 +9,25 @@ __global__ void recvKernel(sendtype *d_snd, recvtype *d_rec, double *d_u, double
     #define SRC(XX,YY) d_u_old[(YY)*(d_snd->n+2)+(XX)]
     #define DST(XX,YY) d_u[(YY)*(d_snd->n+2)+(XX)]
 
-    double xLeft = -1.0;
-    double yBottom = -1.0;
-    double xLeft_local, yBottom_local;
-    int n_local, m_local, coords[2];
+    // double xLeft = -1.0;
+    // double yBottom = -1.0;
+    // double xLeft_local, yBottom_local;
+    // int n_local, m_local, coords[2];
 
-    double deltaX = (2.0)/(d_snd->n-1);
-    double deltaY = (2.0)/(d_snd->m-1);
+    // double deltaX = (2.0)/(d_snd->n-1);
+    // double deltaY = (2.0)/(d_snd->m-1);
 
-    double cx = 1.0/(deltaX*deltaX);
-    double cy = 1.0/(deltaY*deltaY);
-    double cc = -2.0*cx-2.0*cy-(d_snd->alpha);
+    // double cx = 1.0/(deltaX*deltaX);
+    // double cy = 1.0/(deltaY*deltaY);
+    // double cc = -2.0*cx-2.0*cy-(d_snd->alpha);
 
-    SRC(0,0) = 1.0;
-    double *temp;
-    temp = d_u;
-    d_u = d_u_old;
-    d_u_old = temp;
-    d_rec->elem1 = DST(0,0);
-    d_rec->elem2 = DST(1,0);    
+    SRC(0,0) += 1.0;
+    // double *temp;
+    // temp = d_u;
+    // d_u = d_u_old;
+    // d_u_old = temp;
+    // d_rec->elem1 = DST(0,0);
+    // d_rec->elem2 = DST(1,0);    
 }
 
 
@@ -62,9 +62,20 @@ int main(){
     cudaMemset(d_u, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
     cudaMemset(d_u_old, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
 
-    recvKernel<<<1,1>>>(d_snd, d_rec, d_u, d_u_old);
-    cudaMemcpy(rec, d_rec, sizeof(recvtype), cudaMemcpyDeviceToHost);
-    printf("elem1 = %lf, elem2 = %lf\n", rec->elem1, rec->elem2);
+    for(int i = 0; i < 2; i++){
+        recvKernel<<<1,1>>>(d_snd, d_rec, d_u, d_u_old);
+        double *temp;
+        temp = d_u;
+        d_u = d_u_old;
+        d_u_old = temp;
+    }
+    double *test = (double *)malloc(sizeof(double));
+    cudaMemcpy(test, &d_u[0], sizeof(double), cudaMemcpyDeviceToHost);
+    printf("DST(0,0) = %lf\n", *test);
+    cudaMemcpy(test, &d_u_old[0], sizeof(double), cudaMemcpyDeviceToHost);
+    printf("SRC(0,0) = %lf\n", *test);
+    // cudaMemcpy(rec, d_rec, sizeof(recvtype), cudaMemcpyDeviceToHost);
+    // printf("elem1 = %lf, elem2 = %lf\n", rec->elem1, rec->elem2);
     
     cudaFree(d_snd);
     cudaFree(d_rec);
