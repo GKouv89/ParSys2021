@@ -1,0 +1,1 @@
+nvcc jacobiCuda.cu -o jacobiCuda
