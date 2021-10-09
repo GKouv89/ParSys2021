@@ -37,10 +37,7 @@ double checkSolution(double xStart, double yStart,
             error += localError*localError;
         }
     }
-    return error; // We return this so process with rank zero
-    // will aggregate these and calculate overall error.
-    // The problem is: will this be correct in respects to maxXcount -2 and maxYCount - 2
-    // adding up to overall maxXcount and maxYcount?
+    return error;
 }
 
 int main(int argc, char* argv[]){
@@ -110,15 +107,7 @@ int main(int argc, char* argv[]){
     m_local = param.m/root;
     xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
     yBottom_local = yBottom +((double)coords[0])*m_local*param.deltaY;
-  }else{ // WIP: THIS WILL MOST LIKELY REQUIRE CHANGES
-    // n is the number of rows and m is the number of columns
-    // so m is the number of 'divisions' of the x axis and 
-    // n is the number of 'divisions' of the y axis.
-    // Professor says that the grid should be 8X10
-    // so the number of rows in the cartesian should be 8 and the number of
-    // columns in the cartesian grid should be 10.
-    // Therefore, n_local should be n_global divided by 8
-    // And m_local should be m_global divided by 10, respectively.
+  }else{
     n_local = param.n/10; 
     m_local = param.m/8; 
     xLeft_local = xLeft + ((double)coords[1])*n_local*param.deltaX;
@@ -200,8 +189,8 @@ int main(int argc, char* argv[]){
           error += updateVal*updateVal;
       }
   }
-  // MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
-  // error = sqrt(error)/(param.n*param.m);
+//  MPI_Allreduce(&error, &error, 1, MPI_DOUBLE, MPI_SUM, new_comm);
+//  error = sqrt(error)/(param.n*param.m);
   iterationCount++;
   // Swap the buffers
   tmp_local = u_old_local;
@@ -212,22 +201,18 @@ int main(int argc, char* argv[]){
   MPI_Request *send_requests_former = (MPI_Request *)malloc(4*sizeof(MPI_Request));
   MPI_Request *send_requests_temp;
   // We send our second northest row to our north neighbor
-  // so row 1, column 1 is our starting point
   MPI_Send_init(&(SRC(1,1)), 1, row_type, north, 0, new_comm, &send_requests_current[0]);
   MPI_Send_init(&(DST(1,1)), 1, row_type, north, 0, new_comm, &send_requests_former[0]);
   
   // We send our second southest row to our south neighbor
-  // so row n_local, column 1 is our starting point
   MPI_Send_init(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_current[1]);
   MPI_Send_init(&(DST(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_former[1]);
     
   // We send our second easternmost row to our east neighbor
-  // so row 1, column 1 is our starting point
   MPI_Send_init(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests_current[2]);
   MPI_Send_init(&(DST(1,1)), 1, column_type, west, 0, new_comm, &send_requests_former[2]);
     
   // We send our second westernmost row to our south neighbor
-  // so row 1, column m_local is our starting point
   MPI_Send_init(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_current[3]);
   MPI_Send_init(&(DST(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_former[3]);
 
@@ -236,19 +221,19 @@ int main(int argc, char* argv[]){
   MPI_Request *receive_requests_temp;
 
   // We receive from our north neighbor its southmost row, 
-  // and we store that in our northermost one, so row 0, column 1 is our starting point
+  // and we store that in our northermost one
   MPI_Recv_init(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_current[0]); 
   MPI_Recv_init(&(DST(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_former[0]); 
   // We receive from our south neighbor its northermost row, 
-  // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
+  // and we store that in our southermost one
   MPI_Recv_init(&(SRC(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_current[1]); 
   MPI_Recv_init(&(DST(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_former[1]); 
   // We receive from our east neighbor its westernmost column, 
-  // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
+  // and we store that in our easternmost one
   MPI_Recv_init(&(SRC(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_current[2]); 
   MPI_Recv_init(&(DST(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_former[2]); 
   // We receive from our west neighbor its easternnmost column, 
-  // and we store that in our westernmost one, so row 1, column 0 is our starting point
+  // and we store that in our westernmost one
   MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
   MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
 
@@ -358,7 +343,7 @@ int main(int argc, char* argv[]){
     residual = sqrt(residual)/(param.n*param.m);
     printf( "Iterations=%3d Elapsed MPI Wall time is %f\n", iterationCount, t2 - t1 ); 
     printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
-    printf("Residual %g\n", residual2);
+    printf("Residual %g\n", residual);
   }
   
   /* Cleaning up custom datatypes */

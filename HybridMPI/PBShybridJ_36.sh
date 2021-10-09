@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # JobName #
-#PBS -N JparallelJacobi
+#PBS -N JhybridJacobi
 
 #Which Queue to use #
 #PBS -q N10C80
@@ -10,10 +10,10 @@
 #PBS -l walltime=00:20:00
 
 # How many nodes and tasks per node
-#PBS -l select=10:ncpus=8:mpiprocs=8:mem=16400000kb
+#PBS -l select=9:ncpus=8:mpiprocs=1:ompthreads=4:mem=16400000kb
 
 #Change Working directory to SUBMIT directory
 cd $PBS_O_WORKDIR
 
 # Run executable #
-mpirun jacobi_parallel.x < input
+mpirun --bind-to none -np 9 jacobi_parallel.x < input

@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,10 +39,7 @@ double checkSolution(double xStart, double yStart,
             error += localError*localError;
         }
     }
-    return error; // We return this so process with rank zero
-    // will aggregate these and calculate overall error.
-    // The problem is: will this be correct in respects to maxXcount -2 and maxYCount - 2
-    // adding up to overall maxXcount and maxYcount?
+    return error;
 }
 
 int main(int argc, char* argv[]){
@@ -52,9 +50,6 @@ int main(int argc, char* argv[]){
 	MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
 	int dimsA[2] = {0, 0};
   MPI_Dims_create(comm_size, 2, dimsA);
-  // if(my_world_rank == 0){
-  //   printf("Dimensions by MPI_Dims_create for %d processes: (%d, %d).\n", comm_size, dimsA[0], dimsA[1]);
-  // }
   switch(comm_size){
     case 4:
       dim_size[1] = dim_size[0] = 2;
@@ -96,7 +91,6 @@ int main(int argc, char* argv[]){
     scanf("%d", &(param.mits));
 
     printf("-> %d, %d, %g, %g, %g, %d\n", param.n, param.m, param.alpha, param.relax, param.tol, param.mits);
-    printf("comm_size = %d\tdimsA[0] = %d\tdimsA[1] = %d\n", comm_size, dimsA[0], dimsA[1]);
   }
   param.deltaX = (2.0)/(param.n-1);
   param.deltaY = (2.0)/(param.m-1);
@@ -203,34 +197,31 @@ int main(int argc, char* argv[]){
   MPI_Send_init(&(DST(1,1)), 1, row_type, north, 0, new_comm, &send_requests_former[0]);
   
   // We send our second southest row to our south neighbor
-  // so row n_local, column 1 is our starting point
   MPI_Send_init(&(SRC(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_current[1]);
   MPI_Send_init(&(DST(1, m_local)), 1, row_type, south, 0, new_comm, &send_requests_former[1]);
     
   // We send our second easternmost row to our east neighbor
-  // so row 1, column 1 is our starting point
   MPI_Send_init(&(SRC(1,1)), 1, column_type, west, 0, new_comm, &send_requests_current[2]);
   MPI_Send_init(&(DST(1,1)), 1, column_type, west, 0, new_comm, &send_requests_former[2]);
     
   // We send our second westernmost row to our south neighbor
-  // so row 1, column m_local is our starting point
   MPI_Send_init(&(SRC(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_current[3]);
   MPI_Send_init(&(DST(n_local, 1)), 1, column_type, east, 0, new_comm, &send_requests_former[3]);
 
   // We receive from our north neighbor its southmost row, 
-  // and we store that in our northermost one, so row 0, column 1 is our starting point
+  // and we store that in our northermost one
   MPI_Recv_init(&(SRC(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_current[0]); 
   MPI_Recv_init(&(DST(1, 0)), 1, row_type, north, 0, new_comm, &receive_requests_former[0]); 
   // We receive from our south neighbor its northermost row, 
-  // and we store that in our southermost one, so row n_local + 1, column 1 is our starting point
+  // and we store that in our southermost one
   MPI_Recv_init(&(SRC(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_current[1]); 
   MPI_Recv_init(&(DST(1, m_local + 1)), 1, row_type, south, 0, new_comm, &receive_requests_former[1]); 
   // We receive from our east neighbor its westernmost column, 
-  // and we store that in our easternmost one, so row 1, column m_local + 1 is our starting point
+  // and we store that in our easternmost one
   MPI_Recv_init(&(SRC(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_current[2]); 
   MPI_Recv_init(&(DST(n_local + 1, 1)), 1, column_type, east, 0, new_comm, &receive_requests_former[2]); 
   // We receive from our west neighbor its easternnmost column, 
-  // and we store that in our westernmost one, so row 1, column 0 is our starting point
+  // and we store that in our westernmost one
   MPI_Recv_init(&(SRC(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_current[3]); 
   MPI_Recv_init(&(DST(0, 1)), 1, column_type, west, 0, new_comm, &receive_requests_former[3]); 
 
@@ -276,8 +267,6 @@ int main(int argc, char* argv[]){
             error += updateVal*updateVal;
         }
       }
-      // #pragma omp atomic
-      //   error += partial_error;
 
       #pragma omp barrier
       #pragma omp master
@@ -379,7 +368,6 @@ int main(int argc, char* argv[]){
   
   if(my_world_rank == 0){
     printf( "Iterations=%3d Elapsed MPI Wall time is %f\n", iterationCount, t2 - t1 ); 
-    // printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
     printf("Residual %g\n", error);
   }
   
