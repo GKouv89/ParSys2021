@@ -9,31 +9,6 @@
 #define ERR(XX,YY) d_error[(YY)*(d_snd->n)+(XX)]
 
 
-__global__ void recvKernel(sendtype *d_snd, recvtype *d_rec, double *d_u, double *d_u_old){
-    #define SRC(XX,YY) d_u_old[(YY)*(d_snd->n+2)+(XX)]
-    #define DST(XX,YY) d_u[(YY)*(d_snd->n+2)+(XX)]
-
-    // double xLeft = -1.0;
-    // double yBottom = -1.0;
-    // double xLeft_local, yBottom_local;
-    // int n_local, m_local, coords[2];
-
-    // double deltaX = (2.0)/(d_snd->n-1);
-    // double deltaY = (2.0)/(d_snd->m-1);
-
-    // double cx = 1.0/(deltaX*deltaX);
-    // double cy = 1.0/(deltaY*deltaY);
-    // double cc = -2.0*cx-2.0*cy-(d_snd->alpha);
-
-    SRC(0,0) += 1.0;
-    // double *temp;
-    // temp = d_u;
-    // d_u = d_u_old;
-    // d_u_old = temp;
-    // d_rec->elem1 = DST(0,0);
-    // d_rec->elem2 = DST(1,0);    
-}
-
 __global__ void coordCalc(sendtype *d_snd, double *fZ_squared){
     int index = threadIdx.x + blockDim.x*blockIdx.x;
     if(index < d_snd->n){
@@ -59,6 +34,41 @@ __global__ void jacobi(sendtype *d_snd, double *fXsquared, double *fYsquared, do
         DST(xIndex,yIndex) = SRC(xIndex,yIndex) - d_snd->relax*updateVal;
         ERR(xIndex-1,yIndex-1) = updateVal*updateVal;
     }
+}
+
+__global__ void reduceError(sendtype *d_snd, double *d_error){
+  int index = threadIdx.x + blockDim.x*blockIdx.x;
+  int fst, snd;
+
+  int step_size = 1;
+  int number_of_threads = 1024;
+  int bounds = d_snd->n*d_snd->m;
+
+	while (number_of_threads > 0)
+	{
+
+    if(index < bounds){
+      if (threadIdx.x < number_of_threads) // still alive?
+      {
+        fst = index * step_size * 2;
+        snd = fst + step_size;
+        d_error[fst] += d_error[snd];
+      }
+    }
+
+    // if(index == (number_of_threads - 1) && number_of_threads%2 != 0){
+    //   // We have an odd count of partial sums
+    //   // And we wish to make it even so the division of
+    //   // The number of threads will work in the next step
+    //   // So we add the last partial sum to the second to last sum
+    //   fst = (index - 1)*step_size*2;
+    //   snd = index*step_size*2;
+    //   d_error[fst] += d_error[snd];
+    // }
+		step_size *= 2; 
+		number_of_threads = number_of_threads/2;
+    __syncthreads();
+	}
 }
 
 int main(){
@@ -116,7 +126,7 @@ int main(){
     // dividing our problem size's *side* by 128
     int threadNum = 128;
     int blocksNum = ceil((double)snd->n/(double)threadNum);
-    printf("threadNum = %d, blocksNum = %d\n", threadNum, blocksNum);
+    // printf("threadNum = %d, blocksNum = %d\n", threadNum, blocksNum);
     coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fXsquared);
     coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fYsquared);
     // For the actual arrays, I choose 256 threads per block
@@ -125,25 +135,38 @@ int main(){
     dim3 threadsPerBlock(16, 16);
     blocksNum = ceil((double)snd->n/16.0);
     dim3 blocksInGrid(blocksNum, blocksNum);
+
+    // For error reduction, we can treat the error array as one-dimensional
+    // We can use the code that the professor sent pretty much as is, despite
+    // not having one block. We'll just find the thread's global id and use that
+    // to sum, and the error will be in the very first element of the array
     double *error = (double *)malloc(snd->n*snd->m*sizeof(double));
     double *temp;
-
+        
     int iterationCount = 0;
-    double error_all = 15.0;
+    double error_all = HUGE_VAL;
     
+    threadNum = 1024; 
+    blocksNum = ((snd->n*snd->m)/2 + 1023)/1024; // As many blocks as before, again just in one dimension  
     while(iterationCount < snd->mits && error_all > snd->tol){
-        jacobi<<<blocksInGrid, threadsPerBlock>>>(d_snd, d_fXsquared, d_fYsquared, d_u_old, d_u, d_error);
-        cudaMemcpy(error, d_error, snd->n*snd->m*sizeof(double), cudaMemcpyDeviceToHost);
-        for(int i = 0; i < snd->n*snd->m; i++){
-            error_all += error[i]; 
-        }
-        error_all = sqrt(error_all)/(snd->n*snd->m);
-        iterationCount++;
-        temp = d_u;
-        d_u = d_u_old;
-        d_u_old = temp;
+    	error_all = 0.0;
+      jacobi<<<blocksInGrid, threadsPerBlock>>>(d_snd, d_fXsquared, d_fYsquared, d_u_old, d_u, d_error);
+      do{
+        blocksNum = (blockNum + 1023)/1024;
+        reduceError<<<blocksNum,threadNum>>>(d_snd, d_error);
+      }while(blocksNum != 1);
+      printf("threadNum = %d, blocksNum = %d\n", threadNum, blocksNum);
+      cudaMemcpy(&error_all, &d_error[0], sizeof(double), cudaMemcpyDeviceToHost);
+      // cudaMemcpy(error, d_error, snd->n*snd->m*sizeof(double), cudaMemcpyDeviceToHost);
+      // for(int i = 0; i < snd->n*snd->m; i++){
+      //   error_all += error[i]; 
+      // }
+      error_all = sqrt(error_all)/(snd->n*snd->m);
+      iterationCount++;
+      temp = d_u;
+      d_u = d_u_old;
+      d_u_old = temp;
     }
-
     printf("Iterations: %d\nResidual: %g\n", iterationCount, error_all);
 
     cudaFree(d_u);
