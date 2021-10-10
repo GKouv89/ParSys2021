@@ -144,11 +144,19 @@ int main(){
     // I wish for each block to have 2048 elements of the array to reduce 
     blocksNum = zeroPaddedMemory/2048;
     double *error = (double *)malloc(blocksNum*sizeof(double));
-    // printf("BlocksNum = %d, threadNum = %d\n", blocksNum, threadNum);
+    printf("BlocksNum = %d, threadNum = %d\n", blocksNum, threadNum);
     while(iterationCount < snd->mits && error_all > snd->tol){
     	error_all = 0.0;
       jacobi<<<blocksInGrid, threadsPerBlock>>>(d_snd, d_fXsquared, d_fYsquared, d_u_old, d_u, d_error);
       reduceError<<<blocksNum,threadNum>>>(d_error);
+      do{
+        if(blocksNum < 2048){
+          break;
+        }else{
+          blocksNum /= 2048;
+          reduceError<<<blocksNum, threadNum>>>(d_error);
+        }
+      }while(blocksNum != 1);
       cudaMemcpy(error, d_error, blocksNum*sizeof(double), cudaMemcpyDeviceToHost);
       for(int i = 0; i < blocksNum; i++){
         error_all += error[i]; 
@@ -158,6 +166,7 @@ int main(){
       temp = d_u;
       d_u = d_u_old;
       d_u_old = temp;
+      blocksNum = zeroPaddedMemory/2048;
     }
     printf("Iterations: %d\nResidual: %g\n", iterationCount, error_all);
 
