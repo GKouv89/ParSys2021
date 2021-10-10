@@ -36,37 +36,30 @@ __global__ void jacobi(sendtype *d_snd, double *fXsquared, double *fYsquared, do
     }
 }
 
-__global__ void reduceError(sendtype *d_snd, double *d_error){
-  int index = threadIdx.x + blockDim.x*blockIdx.x;
-  int fst, snd;
-
+__global__ void reduceError(double *d_error){
   int step_size = 1;
-  int number_of_threads = 1024;
-  int bounds = d_snd->n*d_snd->m;
+  int number_of_threads = 1024; // We'll ALWAYS START with this many active PER BLOCK
+
+  int index;
+  int fst, snd;
 
 	while (number_of_threads > 0)
 	{
-
-    if(index < bounds){
-      if (threadIdx.x < number_of_threads) // still alive?
-      {
-        fst = index * step_size * 2;
-        snd = fst + step_size;
-        d_error[fst] += d_error[snd];
-      }
+    if (threadIdx.x < number_of_threads) // still alive?
+    {
+      index = threadIdx.x + number_of_threads*blockIdx.x;
+      fst = index * step_size * 2;
+      snd = fst + step_size;
+      d_error[fst] += d_error[snd];
     }
 
-    // if(index == (number_of_threads - 1) && number_of_threads%2 != 0){
-    //   // We have an odd count of partial sums
-    //   // And we wish to make it even so the division of
-    //   // The number of threads will work in the next step
-    //   // So we add the last partial sum to the second to last sum
-    //   fst = (index - 1)*step_size*2;
-    //   snd = index*step_size*2;
-    //   d_error[fst] += d_error[snd];
-    // }
-		step_size *= 2; 
+    step_size *= 2; 
 		number_of_threads = number_of_threads/2;
+    if(threadIdx.x == 0 && number_of_threads == 0){ 
+      // DONE, COPYING TO FIRST NUMBLOCKS 
+      // OF D_ERROR ARRAY
+      d_error[blockIdx.x] = d_error[2*blockIdx.x*blockDim.x];
+    }
     __syncthreads();
 	}
 }
@@ -111,7 +104,8 @@ int main(){
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
     }
-    err = cudaMalloc((void **) &d_error, snd->n*snd->m*sizeof(double));
+    int zeroPaddedMemory = pow(2, ceil(log2(snd->m*snd->n))); 
+    err = cudaMalloc((void **) &d_error, zeroPaddedMemory*sizeof(double));
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert for error array: %s\n", cudaGetErrorString(err));
     }
@@ -119,7 +113,8 @@ int main(){
     cudaMemset(d_u_old, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
     cudaMemset(d_fXsquared, 0, snd->n*sizeof(double));
     cudaMemset(d_fYsquared, 0, snd->m*sizeof(double));
-    cudaMemset(d_error, 0, snd->m*snd->n*sizeof(double));
+    printf("zeroPaddedMemory = %d\n", zeroPaddedMemory);
+    cudaMemset(d_error, 0, zeroPaddedMemory*sizeof(double));
 
     // I for sure will have 128 threads per block
     // So we now wish to find how many blocks are necessary for
@@ -140,27 +135,24 @@ int main(){
     // We can use the code that the professor sent pretty much as is, despite
     // not having one block. We'll just find the thread's global id and use that
     // to sum, and the error will be in the very first element of the array
-    double *error = (double *)malloc(snd->n*snd->m*sizeof(double));
     double *temp;
         
     int iterationCount = 0;
     double error_all = HUGE_VAL;
     
-    threadNum = 1024; 
-    blocksNum = ((snd->n*snd->m)/2 + 1023)/1024; // As many blocks as before, again just in one dimension  
+    threadNum = 1024;
+    // I wish for each block to have 2048 elements of the array to reduce 
+    blocksNum = zeroPaddedMemory/2048;
+    double *error = (double *)malloc(blocksNum*sizeof(double));
+    // printf("BlocksNum = %d, threadNum = %d\n", blocksNum, threadNum);
     while(iterationCount < snd->mits && error_all > snd->tol){
     	error_all = 0.0;
       jacobi<<<blocksInGrid, threadsPerBlock>>>(d_snd, d_fXsquared, d_fYsquared, d_u_old, d_u, d_error);
-      do{
-        blocksNum = (blockNum + 1023)/1024;
-        reduceError<<<blocksNum,threadNum>>>(d_snd, d_error);
-      }while(blocksNum != 1);
-      printf("threadNum = %d, blocksNum = %d\n", threadNum, blocksNum);
-      cudaMemcpy(&error_all, &d_error[0], sizeof(double), cudaMemcpyDeviceToHost);
-      // cudaMemcpy(error, d_error, snd->n*snd->m*sizeof(double), cudaMemcpyDeviceToHost);
-      // for(int i = 0; i < snd->n*snd->m; i++){
-      //   error_all += error[i]; 
-      // }
+      reduceError<<<blocksNum,threadNum>>>(d_error);
+      cudaMemcpy(error, d_error, blocksNum*sizeof(double), cudaMemcpyDeviceToHost);
+      for(int i = 0; i < blocksNum; i++){
+        error_all += error[i]; 
+      }
       error_all = sqrt(error_all)/(snd->n*snd->m);
       iterationCount++;
       temp = d_u;
@@ -178,6 +170,5 @@ int main(){
     cudaFree(d_error);
     free(snd);
     free(rec);
-    free(error);
     return 0;
 }
