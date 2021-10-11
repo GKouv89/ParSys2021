@@ -122,6 +122,7 @@ int main(){
     int threadNum = 128;
     int blocksNum = ceil((double)snd->n/(double)threadNum);
     // printf("threadNum = %d, blocksNum = %d\n", threadNum, blocksNum);
+    clock_t start = clock(), diff;    
     coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fXsquared);
     coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fYsquared);
     // For the actual arrays, I choose 256 threads per block
@@ -143,7 +144,7 @@ int main(){
     threadNum = 1024;
     // I wish for each block to have 2048 elements of the array to reduce 
     blocksNum = zeroPaddedMemory/2048;
-    double *error = (double *)malloc(blocksNum*sizeof(double));
+    double *error = (double *)malloc(2048*sizeof(double));
     printf("BlocksNum = %d, threadNum = %d\n", blocksNum, threadNum);
     while(iterationCount < snd->mits && error_all > snd->tol){
     	error_all = 0.0;
@@ -157,10 +158,9 @@ int main(){
           reduceError<<<blocksNum, threadNum>>>(d_error);
         }
       }while(blocksNum != 1);
-      cudaMemcpy(error, d_error, blocksNum*sizeof(double), cudaMemcpyDeviceToHost);
-      for(int i = 0; i < blocksNum; i++){
-        error_all += error[i]; 
-      }
+      cudaMemset(&d_error[blocksNum], 0, (2048 - blocksNum)*sizeof(double));
+      reduceError<<<1,threadNum>>>(d_error);
+      cudaMemcpy(&error_all, &d_error[0], sizeof(double), cudaMemcpyDeviceToHost);
       error_all = sqrt(error_all)/(snd->n*snd->m);
       iterationCount++;
       temp = d_u;
@@ -168,7 +168,10 @@ int main(){
       d_u_old = temp;
       blocksNum = zeroPaddedMemory/2048;
     }
+    diff = clock() - start;
+    int msec = diff * 1000 / CLOCKS_PER_SEC;
     printf("Iterations: %d\nResidual: %g\n", iterationCount, error_all);
+    printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
 
     cudaFree(d_u);
     cudaFree(d_u_old);

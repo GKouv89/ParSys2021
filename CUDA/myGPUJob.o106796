@@ -1,0 +1,6 @@
+-> 6720, 6720, 0.8, 1, 1e-13, 50
+zeroPaddedMemory = 67108864
+BlocksNum = 32768, threadNum = 1024
+Iterations: 50
+Residual: 1.05639e-11
+Time taken 0 seconds 977 milliseconds
