@@ -5,6 +5,7 @@
 #include <cuda_runtime_api.h>
 #include <math.h>
 #include "datatypes.h"
+#include <omp.h>
 
 #define ERR(XX,YY) d_error[(YY)*(d_snd->n)+(XX)]
 
@@ -79,7 +80,7 @@ int main(){
     snd->cy = 1.0/(snd->delta*snd->delta);
     snd->cc = -2.0*snd->cx-2.0*snd->cy-snd->alpha;
 
-    sendtype *d_snd;
+    sendtype *d_snd, *d_snd_two;
     cudaMalloc((void **) &d_snd, sizeof(sendtype));
     cudaMemcpy(d_snd, snd, sizeof(sendtype), cudaMemcpyHostToDevice);
 
@@ -87,7 +88,8 @@ int main(){
     rec = (recvtype *) malloc(sizeof(recvtype));
     cudaMalloc((void **) &d_rec, sizeof(recvtype));
 
-    double *d_u, *d_u_old, *d_fXsquared, *d_fYsquared, *d_error;    
+    double *d_u, *d_u_old, *d_fXsquared, *d_fYsquared, *d_fYsquared_two, *d_error, *fYsquared_temp;    
+    fYsquared_temp = (double *)malloc(snd->m*sizeof(double));
     cudaError_t err = cudaMalloc((void **) &d_u, (snd->n + 2)*(snd->m + 2)*sizeof(double));
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
@@ -112,18 +114,38 @@ int main(){
     cudaMemset(d_u, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
     cudaMemset(d_u_old, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
     cudaMemset(d_fXsquared, 0, snd->n*sizeof(double));
-    cudaMemset(d_fYsquared, 0, snd->m*sizeof(double));
     cudaMemset(d_error, 0, zeroPaddedMemory*sizeof(double));
+    cudaMemset(d_fYsquared, 0, snd->m*sizeof(double));
+    int threadNum = 128;
+    int blocksNum = ceil((double)snd->n/(double)threadNum);
+    
+    cudaSetDevice(1);
+    cudaMalloc((void **) &d_snd_two, sizeof(sendtype));
+    cudaMemcpy(d_snd_two, snd, sizeof(sendtype), cudaMemcpyHostToDevice);
+    err = cudaMalloc((void **) &d_fYsquared_two, snd->m*sizeof(double));
+    if (err != cudaSuccess){
+		  fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
+    }
 
     // I for sure will have 128 threads per block
     // So we now wish to find how many blocks are necessary for
     // dividing our problem size's *side* by 128
-    int threadNum = 128;
-    int blocksNum = ceil((double)snd->n/(double)threadNum);
-    // printf("threadNum = %d, blocksNum = %d\n", threadNum, blocksNum);
     clock_t start = clock(), diff;    
+    coordCalc<<<blocksNum, threadNum>>>(d_snd_two, d_fYsquared_two);
+    cudaMemcpyAsync(fYsquared_temp, d_fYsquared_two, snd->m*sizeof(double), cudaMemcpyDeviceToHost);
+    cudaSetDevice(0);
     coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fXsquared);
-    coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fYsquared);
+    cudaDeviceSynchronize();
+    cudaSetDevice(1); cudaDeviceSynchronize();
+    cudaFree(d_fYsquared_two);
+    cudaFree(d_snd_two);
+    cudaSetDevice(0);
+    cudaMemcpy(d_fYsquared, fYsquared_temp, snd->m*sizeof(double), cudaMemcpyHostToDevice);
+    for(int i = 0; i < snd->m; i++){
+      printf("fYsquared_temp[%d] = %lf\n", i, fYsquared_temp[i]);
+    }
+    free(fYsquared_temp);
+
     // For the actual arrays, I choose 256 threads per block
     // in a 16x16 cartesian fashion. So now I need to find how
     // many blocks I need per side to have a 2D block grid

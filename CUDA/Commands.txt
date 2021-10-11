@@ -1,1 +1,7 @@
+# Compile for one GPU #
+
 nvcc jacobiCuda.cu -o jacobiCuda
+
+# Compile for two GPUs #
+
+nvcc jacobiCudaTwo.cu -o jacobiCuda -lm
