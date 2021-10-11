@@ -82,19 +82,24 @@ int main(){
 
     sendtype *d_snd, *d_snd_two;
     cudaMalloc((void **) &d_snd, sizeof(sendtype));
+    snd->m /= 2;
     cudaMemcpy(d_snd, snd, sizeof(sendtype), cudaMemcpyHostToDevice);
+    snd->m *= 2;
 
     recvtype *rec, *d_rec;
     rec = (recvtype *) malloc(sizeof(recvtype));
     cudaMalloc((void **) &d_rec, sizeof(recvtype));
 
-    double *d_u, *d_u_old, *d_fXsquared, *d_fYsquared, *d_fYsquared_two, *d_error, *fYsquared_temp;    
+    double *d_u, *d_u_old, *d_fXsquared, *d_fYsquared, *d_error; 
+    double *d_u_two, *d_u_old_two, *d_fYsquared_two, *d_fXsquared_two, *d_error_two;
+    double *fXsquared_temp, *fYsquared_temp;        
     fYsquared_temp = (double *)malloc(snd->m*sizeof(double));
-    cudaError_t err = cudaMalloc((void **) &d_u, (snd->n + 2)*(snd->m + 2)*sizeof(double));
+    fXsquared_temp = (double *)malloc(snd->n*sizeof(double));
+    cudaError_t err = cudaMalloc((void **) &d_u, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
     }
-    err = cudaMalloc((void **) &d_u_old, (snd->n + 2)*(snd->m + 2)*sizeof(double));
+    err = cudaMalloc((void **) &d_u_old, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
     }
@@ -106,45 +111,68 @@ int main(){
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
     }
-    int zeroPaddedMemory = pow(2, ceil(log2(snd->m*snd->n))); 
+    int zeroPaddedMemory = pow(2, ceil(log2((snd->m/2)*snd->n))); 
     err = cudaMalloc((void **) &d_error, zeroPaddedMemory*sizeof(double));
     if (err != cudaSuccess){
 		fprintf(stderr, "GPUassert for error array: %s\n", cudaGetErrorString(err));
     }
-    cudaMemset(d_u, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
-    cudaMemset(d_u_old, 0, (snd->n + 2)*(snd->m + 2)*sizeof(double));
+    cudaMemset(d_u, 0, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
+    cudaMemset(d_u_old, 0, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
     cudaMemset(d_fXsquared, 0, snd->n*sizeof(double));
     cudaMemset(d_error, 0, zeroPaddedMemory*sizeof(double));
     cudaMemset(d_fYsquared, 0, snd->m*sizeof(double));
-    int threadNum = 128;
-    int blocksNum = ceil((double)snd->n/(double)threadNum);
-    
+
     cudaSetDevice(1);
+    snd->m /= 2;
     cudaMalloc((void **) &d_snd_two, sizeof(sendtype));
     cudaMemcpy(d_snd_two, snd, sizeof(sendtype), cudaMemcpyHostToDevice);
-    err = cudaMalloc((void **) &d_fYsquared_two, snd->m*sizeof(double));
+    snd->m *= 2;
+    err = cudaMalloc((void **) &d_fXsquared_two, snd->n*sizeof(double));
     if (err != cudaSuccess){
 		  fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
     }
+    err = cudaMalloc((void **) &d_fYsquared_two, (snd->m/2)*sizeof(double));
+    if (err != cudaSuccess){
+		  fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
+    }
+    err = cudaMalloc((void **) &d_u_two, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
+    if (err != cudaSuccess){
+		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
+    }
+    err = cudaMalloc((void **) &d_u_old_two, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
+    if (err != cudaSuccess){
+		fprintf(stderr, "GPUassert: %s\n", cudaGetErrorString(err));
+    }
+    err = cudaMalloc((void **) &d_error_two, zeroPaddedMemory*sizeof(double));
+    if (err != cudaSuccess){
+		fprintf(stderr, "GPUassert for error array: %s\n", cudaGetErrorString(err));
+    }
+    cudaMemset(d_u_two, 0, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
+    cudaMemset(d_u_old_two, 0, (snd->n + 2)*(snd->m/2 + 2)*sizeof(double));
+    cudaMemset(d_fXsquared_two, 0, snd->n*sizeof(double));
+    cudaMemset(d_error_two, 0, zeroPaddedMemory*sizeof(double));
+    cudaMemset(d_fYsquared_two, 0, (snd->m/2)*sizeof(double));
+    cudaSetDevice(0);
+
+    int threadNum = 128;
+    int blocksNum = ceil((double)snd->n/(double)threadNum);
+    
 
     // I for sure will have 128 threads per block
     // So we now wish to find how many blocks are necessary for
     // dividing our problem size's *side* by 128
     clock_t start = clock(), diff;    
-    coordCalc<<<blocksNum, threadNum>>>(d_snd_two, d_fYsquared_two);
-    cudaMemcpyAsync(fYsquared_temp, d_fYsquared_two, snd->m*sizeof(double), cudaMemcpyDeviceToHost);
-    cudaSetDevice(0);
+    coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fYsquared);
     coordCalc<<<blocksNum, threadNum>>>(d_snd, d_fXsquared);
     cudaDeviceSynchronize();
-    cudaSetDevice(1); cudaDeviceSynchronize();
-    cudaFree(d_fYsquared_two);
-    cudaFree(d_snd_two);
-    cudaSetDevice(0);
-    cudaMemcpy(d_fYsquared, fYsquared_temp, snd->m*sizeof(double), cudaMemcpyHostToDevice);
-    for(int i = 0; i < snd->m; i++){
-      printf("fYsquared_temp[%d] = %lf\n", i, fYsquared_temp[i]);
-    }
+    cudaMemcpy(fYsquared_temp, d_fYsquared, snd->m*sizeof(double), cudaMemcpyDeviceToHost);
+    cudaMemcpy(fXsquared_temp, d_fXsquared, snd->n*sizeof(double), cudaMemcpyDeviceToHost);
+    cudaSetDevice(1);    
+    cudaMemcpy(d_fYsquared_two, &fYsquared_temp[snd->m/2], (snd->m/2)*sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_fXsquared_two, fXsquared_temp, snd->n*sizeof(double), cudaMemcpyHostToDevice);
+    cudaSetDevice(0);    
     free(fYsquared_temp);
+    free(fXsquared_temp);
 
     // For the actual arrays, I choose 256 threads per block
     // in a 16x16 cartesian fashion. So now I need to find how
@@ -161,30 +189,70 @@ int main(){
         
     int iterationCount = 0;
     double error_all = HUGE_VAL;
-    
+    double error_all_two;
+    double *halo = (double *)malloc(snd->n*sizeof(double));
+
     threadNum = 1024;
     // I wish for each block to have 2048 elements of the array to reduce 
     blocksNum = zeroPaddedMemory/2048;
     while(iterationCount < snd->mits && error_all > snd->tol){
     	error_all = 0.0;
       jacobi<<<blocksInGrid, threadsPerBlock>>>(d_snd, d_fXsquared, d_fYsquared, d_u_old, d_u, d_error);
+      cudaSetDevice(1);
+      jacobi<<<blocksInGrid, threadsPerBlock>>>(d_snd_two, d_fXsquared_two, d_fYsquared_two, d_u_old_two, d_u_two, d_error_two);
+      cudaDeviceSynchronize();
+      cudaSetDevice(0);
+      cudaDeviceSynchronize();
       reduceError<<<blocksNum,threadNum>>>(d_error);
+      cudaSetDevice(1);
+      reduceError<<<blocksNum,threadNum>>>(d_error_two);
+      cudaDeviceSynchronize();
+      cudaSetDevice(0);
+      cudaDeviceSynchronize();
       do{
         if(blocksNum < 2048){
           break;
         }else{
           blocksNum /= 2048;
           reduceError<<<blocksNum, threadNum>>>(d_error);
+          cudaSetDevice(1);
+          reduceError<<<blocksNum, threadNum>>>(d_error_two);
+          cudaDeviceSynchronize();
+          cudaSetDevice(0);
+          cudaDeviceSynchronize();
         }
       }while(blocksNum != 1);
       cudaMemset(&d_error[blocksNum], 0, (2048 - blocksNum)*sizeof(double));
       reduceError<<<1,threadNum>>>(d_error);
+      cudaSetDevice(1);
+      cudaMemset(&d_error_two[blocksNum], 0, (2048 - blocksNum)*sizeof(double));
+      reduceError<<<1,threadNum>>>(d_error_two);
+      cudaDeviceSynchronize();
+      cudaSetDevice(0); cudaDeviceSynchronize();
+      
       cudaMemcpy(&error_all, &d_error[0], sizeof(double), cudaMemcpyDeviceToHost);
+      cudaSetDevice(1);
+      cudaMemcpy(&error_all_two, &d_error_two[0], sizeof(double), cudaMemcpyDeviceToHost);
+      cudaSetDevice(0);
+      error_all += error_all_two;
       error_all = sqrt(error_all)/(snd->n*snd->m);
-      iterationCount++;
+      
       temp = d_u;
       d_u = d_u_old;
       d_u_old = temp;
+      
+      temp = d_u_two;
+      d_u_two = d_u_old_two;
+      d_u_old_two = temp;
+
+      iterationCount++;
+      cudaMemcpy(halo, &d_u_old[(snd->m/2)*(snd->n + 2) + 1],snd->n*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaSetDevice(1);
+      cudaMemcpy(&d_u_old_two[1], halo, snd->n*sizeof(double), cudaMemcpyHostToDevice);
+      cudaMemcpy(halo, &d_u_old_two[(snd->n + 2) + 1], snd->n*sizeof(double), cudaMemcpyDeviceToHost);
+      cudaSetDevice(0);
+      cudaMemcpy(halo, &d_u_old[(snd->m/2 + 1)*(snd->n + 2) + 1], snd->n*sizeof(double), cudaMemcpyHostToDevice);
+
       blocksNum = zeroPaddedMemory/2048;
     }
     diff = clock() - start;
@@ -199,7 +267,18 @@ int main(){
     cudaFree(d_snd);
     cudaFree(d_rec);
     cudaFree(d_error);
+
+    cudaSetDevice(1);
+    cudaFree(d_u_two);
+    cudaFree(d_u_old_two);
+    cudaFree(d_fXsquared_two);
+    cudaFree(d_fYsquared_two);
+    cudaFree(d_snd_two);
+    cudaFree(d_error_two);
+    cudaSetDevice(0);
+
     free(snd);
     free(rec);
+    free(halo);
     return 0;
 }
