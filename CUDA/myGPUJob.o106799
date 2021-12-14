@@ -1,6 +1,0 @@
--> 840, 840, 0.8, 1, 1e-13, 50
-zeroPaddedMemory = 1048576
-BlocksNum = 512, threadNum = 1024
-Iterations: 50
-Residual: 5.40181e-09
-Time taken 0 seconds 21 milliseconds

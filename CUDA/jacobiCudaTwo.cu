@@ -37,6 +37,7 @@ __global__ void jacobi(sendtype *d_snd, double *fXsquared, double *fYsquared, do
     }
 }
 
+// For error reduction, we can treat the error array as one-dimensional
 __global__ void reduceError(double *d_error){
   int step_size = 1;
   int number_of_threads = 1024; // We'll ALWAYS START with this many active PER BLOCK
@@ -158,7 +159,7 @@ int main(){
     int blocksNum = ceil((double)snd->n/(double)threadNum);
     
 
-    // I for sure will have 128 threads per block
+    // We for sure will have 128 threads per block
     // So we now wish to find how many blocks are necessary for
     // dividing our problem size's *side* by 128
     clock_t start = clock(), diff;    
@@ -174,17 +175,13 @@ int main(){
     free(fYsquared_temp);
     free(fXsquared_temp);
 
-    // For the actual arrays, I choose 256 threads per block
-    // in a 16x16 cartesian fashion. So now I need to find how
+    // For the actual arrays, we choose 256 threads per block
+    // in a 16x16 cartesian fashion. So now we need to find how
     // many blocks I need per side to have a 2D block grid
     dim3 threadsPerBlock(16, 16);
     blocksNum = ceil((double)snd->n/16.0);
     dim3 blocksInGrid(blocksNum, blocksNum);
 
-    // For error reduction, we can treat the error array as one-dimensional
-    // We can use the code that the professor sent pretty much as is, despite
-    // not having one block. We'll just find the thread's global id and use that
-    // to sum, and the error will be in the very first element of the array
     double *temp;
         
     int iterationCount = 0;
@@ -193,7 +190,9 @@ int main(){
     double *halo = (double *)malloc(snd->n*sizeof(double));
 
     threadNum = 1024;
-    // I wish for each block to have 2048 elements of the array to reduce 
+    // Recalculating blocksNum for error reduction:
+    // we wish for each block to have 2048 elements of the array to reduce
+    // and for that, we need 1024 (2048/2) threads per block. 
     blocksNum = zeroPaddedMemory/2048;
     while(iterationCount < snd->mits && error_all > snd->tol){
     	error_all = 0.0;

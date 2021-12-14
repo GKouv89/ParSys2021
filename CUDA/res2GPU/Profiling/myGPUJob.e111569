@@ -1,0 +1,20 @@
+==112504== NVPROF is profiling process 112504, command: ./jacobiCuda
+==112504== Profiling application: ./jacobiCuda
+==112504== Profiling result:
+
+==112504== Device "Quadro P4000 (0)"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   56.99%  6.6543ms        50  133.09us  132.67us  133.54us  jacobi(send*, double*, double*, double*, double*, double*)
+                   41.00%  4.7878ms       100  47.878us  7.2960us  90.305us  reduceError(double*)
+                    1.00%  117.06us       102  1.1470us     832ns  1.8240us  [CUDA memcpy DtoH]
+                    0.96%  112.45us        55  2.0440us     928ns  20.256us  [CUDA memset]
+                    0.04%  4.2880us         2  2.1440us  1.6000us  2.6880us  coordCalc(send*, double*)
+                    0.01%     992ns         1     992ns     992ns     992ns  [CUDA memcpy HtoD]
+
+==112504== Device "Quadro P4000 (1)"
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   56.76%  6.9680ms        50  139.36us  138.98us  139.91us  jacobi(send*, double*, double*, double*, double*, double*)
+                   40.61%  4.9848ms       100  49.847us  7.5840us  93.569us  reduceError(double*)
+                    1.01%  123.65us       100  1.2360us     896ns  1.8880us  [CUDA memcpy DtoH]
+                    0.94%  115.68us        55  2.1030us     864ns  20.512us  [CUDA memset]
+                    0.68%  83.072us        53  1.5670us  1.0560us  1.6640us  [CUDA memcpy HtoD]

@@ -1,0 +1,22 @@
+==106916== NVPROF is profiling process 106916, command: ./jacobiCuda
+==106916== Profiling application: ./jacobiCuda
+==106916== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   57.70%  12.096ms        50  241.92us  241.15us  242.72us  jacobi(send*, double*, double*, double*, double*, double*)
+                   41.33%  8.6650ms       100  86.650us  7.3600us  168.10us  reduceError(double*)
+                    0.74%  154.27us        55  2.8040us     928ns  39.488us  [CUDA memset]
+                    0.21%  43.680us        50     873ns     832ns  1.1520us  [CUDA memcpy DtoH]
+                    0.02%  4.0000us         2  2.0000us  1.6320us  2.3680us  coordCalc(send*, double*)
+                    0.00%     992ns         1     992ns     992ns     992ns  [CUDA memcpy HtoD]
+      API calls:   88.16%  176.53ms         7  25.218ms  4.1220us  176.12ms  cudaMalloc
+                   10.63%  21.276ms        51  417.17us  65.255us  482.72us  cudaMemcpy
+                    0.38%  762.72us         7  108.96us  3.2060us  267.31us  cudaFree
+                    0.31%  626.21us       152  4.1190us  3.5530us  11.859us  cudaLaunchKernel
+                    0.22%  433.71us         2  216.86us  213.39us  220.32us  cuDeviceTotalMem
+                    0.19%  373.41us       202  1.8480us     156ns  81.109us  cuDeviceGetAttribute
+                    0.09%  181.52us        55  3.3000us  2.4430us  23.864us  cudaMemset
+                    0.02%  37.522us         2  18.761us  15.765us  21.757us  cuDeviceGetName
+                    0.00%  7.4000us         2  3.7000us  1.5530us  5.8470us  cuDeviceGetPCIBusId
+                    0.00%  1.1530us         4     288ns     156ns     675ns  cuDeviceGet
+                    0.00%  1.1190us         3     373ns     186ns     678ns  cuDeviceGetCount
+                    0.00%     591ns         2     295ns     251ns     340ns  cuDeviceGetUuid

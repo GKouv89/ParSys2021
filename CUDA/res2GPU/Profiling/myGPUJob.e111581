@@ -1,0 +1,13 @@
+==112958== NVPROF is profiling process 112958, command: ./jacobiCuda
+GPUassert for error array: out of memory
+GPUassert for error array: out of memory
+==112958== Profiling application: ./jacobiCuda
+==112958== Warning: 18 records have invalid timestamps due to insufficient device buffer space. You can configure the buffer space using the option --device-buffer-size.
+==112958== Warning: 14 records have invalid timestamps due to insufficient semaphore pool size. You can configure the pool size using the option --profiling-semaphore-pool-size.
+==112958== Profiling result:
+
+==112958== Device "Quadro P4000 (0)"
+No kernels were profiled.
+
+==112958== Device "Quadro P4000 (1)"
+No kernels were profiled.
